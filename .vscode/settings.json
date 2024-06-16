@@ -1,0 +1,21 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/Users/robertengels/cpp_orderbook/bin",
+            "binaryPath": "/Users/robertengels/cpp_orderbook/bin/orderbook_test",
+            "binaryArgs": []
+        }
+    ],
+    "boost-test-adapter-feher.tests": [
+        { 
+            "testExecutables": [ 
+                {
+                    "path": "bin/orderbook_test"
+                }
+            ],
+            "cwd": "${workspaceFolder}",
+            "debugConfig": "Test config",
+            "sourcePrefix": "${workspaceFolder}"
+        }
+    ]
+}
