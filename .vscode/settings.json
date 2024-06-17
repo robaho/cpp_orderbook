@@ -2,7 +2,7 @@
     "makefile.launchConfigurations": [
         {
             "cwd": "/Users/robertengels/cpp_orderbook/bin",
-            "binaryPath": "/Users/robertengels/cpp_orderbook/bin/orderbook_test",
+            "binaryPath": "/Users/robertengels/cpp_orderbook/bin/exchange_test",
             "binaryArgs": []
         }
     ],
@@ -10,7 +10,7 @@
         { 
             "testExecutables": [ 
                 {
-                    "path": "bin/orderbook_test"
+                    "path": "bin/exchange_test"
                 }
             ],
             "cwd": "${workspaceFolder}",

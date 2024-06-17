@@ -11,11 +11,11 @@ TEST_MAINS = $(addprefix bin/, $(TEST_SRCS:.cpp=))
 
 HEADERS = ${wildcard *.h} fixed.h
 
-SRCS = orderbook.cpp
+SRCS = orderbook.cpp exchange.cpp
 
 OBJS = $(addprefix bin/, $(SRCS:.cpp=.o))
 
-MAIN = bin/orderbook_test
+MAIN = bin/exchange_test
 MAIN_OBJ = ${basename ${MAIN}}.o
 
 LIB = bin/orderbook.a
