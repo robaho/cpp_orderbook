@@ -26,10 +26,12 @@ private:
     int remaining;
     int filled=0;
     
-    Order(std::string orderId,std::string& instrument,F price,int quantity,Side side,long exchangeId) : orderId(orderId), instrument(instrument), exchangeId(exchangeId) , price(price), quantity(quantity), side(side), remaining(quantity), timeSubmitted(epoch()){}
     void fill(int quantity) { remaining -= quantity; filled += quantity; }
     void cancel() { remaining = 0; }
     bool isMarket() { return price == DBL_MAX || price == -DBL_MAX; } // could add "type" property, but not necessary for only limit and market orders
+protected:
+    // protected to allow testcase
+    Order(std::string orderId,std::string instrument,F price,int quantity,Side side,long exchangeId) : orderId(orderId), instrument(instrument), exchangeId(exchangeId) , price(price), quantity(quantity), side(side), remaining(quantity), timeSubmitted(epoch()){}
 public:
     const std::string orderId;
     const std::string instrument; 

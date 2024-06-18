@@ -49,12 +49,36 @@ public:
     virtual void onTrade(const Trade& trade){}
 };
 
+typedef std::pair<F,int> BookLevel;
+
+/** consolidated book levels by price and total quantity quantity */
+struct BookLevels {
+    std::vector<BookLevel> bids;
+    std::vector<BookLevel> asks;
+};
+
 struct Book {
     std::vector<Order> bids;
     std::vector<Order> asks;
     static int indexOf(std::vector<Order> &list,long exchangeId) {
         auto itr = std::find_if(list.begin(),list.end(),[exchangeId](const Order& order){return order.exchangeId==exchangeId;});
         return itr==list.end() ? -1 : itr-list.begin();
+    }
+    BookLevels levels() const {
+        BookLevels levels;
+        auto process = [](std::vector<BookLevel> &levels,const std::vector<Order> &orders) {
+            auto itr = orders.begin();
+            for(;itr!=orders.end();) {
+                int total = itr->quantity;
+                F price = itr->price;
+                while(++itr!=orders.end() && itr->price==price) {
+                    total+=itr->quantity;
+                }
+                levels.push_back(std::pair(price,total));
+            }
+        };
+        process(levels.bids,bids);
+        return levels;
     }
 };
 

@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE orderbook
+#define BOOST_TEST_MODULE exchange
 #include <boost/test/included/unit_test.hpp>
 
 #include "exchange.h"
