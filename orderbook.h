@@ -15,6 +15,11 @@ friend class OrderBook;
 private:
     void insertOrder(Order *order);
     const bool ascending;
+    bool lessFn(Order *a,Order *b) {
+        if(a->price==b->price) return a->timeSubmitted < b->timeSubmitted;
+        return ascending ? a->price < b->price : b->price < a->price;
+    };
+
 public:
     OrderList(bool ascendingPrices) : ascending(ascendingPrices){}
     int indexOf(long id) {
@@ -24,6 +29,16 @@ public:
             }
         }
         return -1;
+    }
+    auto find(Order *order) {
+        auto cmp =[this](Order *a,Order*b) {
+            return lessFn(a,b);
+        };
+        auto itrs = std::equal_range(begin(),end(),order,cmp);
+        for(auto itr=itrs.first;itr!=itrs.second;itr++) {
+            if((*itr)==order) return itr;
+        }
+        return end();
     }
     int size() {
         return vector::size();

@@ -1,16 +1,16 @@
 #include "orderbook.h"
 #include "order.h"
+#include <algorithm>
 #include <mutex>
 #include <sys/param.h>
 
 #define LOCK_BOOK() std::lock_guard<std::mutex> lock(mu)
 
 void OrderList::insertOrder(Order *order) {
-    auto lessFn = [this](Order *a,Order *b) {
-        return ascending ? a->price < b->price : b->price < a->price;
+    auto cmp = [this](Order*a,Order*b) {
+        return lessFn(a,b);
     };
-    auto itr = begin();
-    for(;itr!=end() && !lessFn(order,*itr);itr++);
+    auto itr = std::lower_bound(begin(),end(),order,cmp);
     if(itr==end()) {
         push_back(order);
     } else {
@@ -72,7 +72,7 @@ int OrderBook::cancelOrder(Order *order) {
     if(order->remaining>0) {
         order->cancel();
         auto orders = order->side == BUY ? &bids : &asks;
-        auto itr = std::find(orders->begin(),orders->end(),order);
+        auto itr = orders->find(order);
         orders->erase(itr);
         listener.onOrder(*order);
         return 0;
