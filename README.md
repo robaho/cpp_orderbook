@@ -8,7 +8,7 @@ It supports limit and market orders.
 
 ## Building
 
-Remove `fixed.h` to obtain the latest version of the fixed point decimal library.
+Remove `fixed.h` , and run `make all` to obtain the latest version of the fixed point decimal library.
 
 ## Usage
 
