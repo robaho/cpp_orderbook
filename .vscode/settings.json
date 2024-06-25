@@ -12,7 +12,7 @@
             "binaryArgs": []
         }
     ],
-    "boost-test-adapter-feher.tests": [
+    "boost-test-adapter-robaho.tests": [
         { 
             "testExecutables": [ 
                 {
@@ -24,7 +24,6 @@
             ],
             "cwd": "${workspaceFolder}",
             "debugConfig": "Test config",
-            "sourcePrefix": "${workspaceFolder}"
         }
     ]
 }

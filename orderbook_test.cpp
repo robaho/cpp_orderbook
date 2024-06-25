@@ -1,4 +1,3 @@
-#include "order.h"
 #define BOOST_TEST_MODULE orderbook
 #include <boost/test/included/unit_test.hpp>
 

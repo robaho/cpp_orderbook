@@ -7,10 +7,11 @@
 #include <mutex>
 #include <algorithm>
 #include <map>
+#include <deque>
 
 #include "order.h"
 
-class OrderList : private std::vector<Order*> {
+class OrderList : private std::deque<Order*> {
 friend class OrderBook;
 private:
     void insertOrder(Order *order);
@@ -41,7 +42,7 @@ public:
         return end();
     }
     int size() {
-        return vector::size();
+        return deque::size();
     }
 };
 
