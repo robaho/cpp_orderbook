@@ -7,7 +7,6 @@
 
 class Node {
 friend class OrderList;
-friend class OrderBook;
 private:
     Node* prev=nullptr;
     Node* next=nullptr;
@@ -23,6 +22,22 @@ private:
     Node* tail=nullptr;
     std::unordered_map<Order *,Node *> allOrders;
 public:
+    struct Iterator 
+    {
+        friend class OrderList;
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type   = std::ptrdiff_t;
+        using value_type        = Order*;
+        using reference         = Order*&;  // or also value_type&
+        value_type operator*() const { return current->order; }
+        // Prefix increment
+        Iterator& operator++() { current = current->next; return *this; }  
+        friend bool operator== (const Iterator& a, const Iterator& b) { return a.current == b.current; };
+        friend bool operator!= (const Iterator& a, const Iterator& b) { return a.current != b.current; };     
+    private:
+        Iterator(Node *node) : current(node){}
+        Node *current;
+    };
     void pushback(Order * const order) {
         auto node = new Node(order);
         if(head==nullptr) {
@@ -57,4 +72,6 @@ public:
     Order* front() {
         return head==nullptr ? nullptr : head->order;
     }
+    Iterator begin() { return Iterator(head); }
+    Iterator end()   { return Iterator(nullptr); }
 };

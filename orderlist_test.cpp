@@ -17,3 +17,20 @@ BOOST_AUTO_TEST_CASE( orderlist ) {
     list.remove(o2);
     BOOST_TEST(list.front()==nullptr);
 }
+BOOST_AUTO_TEST_CASE( orderlist_iterator ) {
+    OrderList list;
+    BOOST_TEST(list.begin()==list.end());
+    auto o = new TestOrder(1,100,10,BUY);
+    list.pushback(o);
+    BOOST_TEST(list.begin()!=list.end());
+    BOOST_TEST(*(list.begin())==o);
+    auto o2 = new TestOrder(2,100,10,BUY);
+    list.pushback(o2);
+    BOOST_TEST(*(list.begin())==o);
+    auto itr = list.begin();
+    ++itr;
+    BOOST_TEST(*(itr)==o2);
+    ++itr;
+    BOOST_TEST(itr==list.end());
+
+}

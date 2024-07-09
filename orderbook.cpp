@@ -77,9 +77,9 @@ const Book OrderBook::book() {
         for(auto level=src.levels.begin();level!=src.levels.end();level++) {
             auto orders = level->second;
             int quantity(0);
-            for(auto node=orders.head;node!=nullptr;node=node->next) {
-                quantity = quantity + node->order->remainingQuantity();
-                oids.push_back(node->order->exchangeId);
+            for(auto itr=orders.begin();itr!=orders.end();++itr) {
+                quantity = quantity + (*itr)->remainingQuantity();
+                oids.push_back((*itr)->exchangeId);
             }
             dst.push_back(BookLevel(level->first,quantity));
         }
