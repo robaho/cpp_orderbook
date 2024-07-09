@@ -4,17 +4,18 @@
 
 #include "order.h"
 
+
 class Node {
 friend class OrderList;
 friend class OrderBook;
 private:
     Node* prev=nullptr;
     Node* next=nullptr;
-public:
     Node(Order * const order) : order(order){}
     Order * const order;
 };
 
+// TODO add forward_iterator support so that friend class in not needed
 class OrderList {
 friend class OrderBook;
 private:
