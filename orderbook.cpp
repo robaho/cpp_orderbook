@@ -40,6 +40,8 @@ void OrderBook::matchOrders(Side aggressorSide) {
             listener.onOrder(*bid);
             listener.onOrder(*ask);
             listener.onTrade(*trade);
+        } else {
+            break;
         }
     }
     // cancel remaining market order

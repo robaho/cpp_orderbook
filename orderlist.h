@@ -3,6 +3,7 @@
 #include <unordered_map>
 
 #include "order.h"
+
 class Node {
 friend class OrderList;
 friend class OrderBook;

@@ -2,11 +2,7 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include "orderbook.h"
-
-class TestOrder : public Order {
-public:
-    TestOrder(long id,F price,int quantity,Side side) : Order("", "dummy",price,quantity,side,id) {}
-};
+#include "test.h"
 
 BOOST_AUTO_TEST_CASE( orderbook_cancel ) {
     OrderBookListener listener;
