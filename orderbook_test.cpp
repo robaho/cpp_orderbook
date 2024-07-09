@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE( orderbook_cancel ) {
 
     ob.cancelOrder(o1);
 
-    auto levels = ob.book().levels();
+    auto levels = ob.book();
     BOOST_TEST(levels.bids.size()==0);
 
     auto o2 = new TestOrder(1,100,10,BUY);
@@ -43,10 +43,10 @@ BOOST_AUTO_TEST_CASE( booklevels ) {
     auto o1 = new TestOrder(1,100,10,BUY);
     ob.insertOrder(o1);
 
-    auto levels = ob.book().levels();
+    auto levels = ob.book();
 
-    BOOST_TEST(levels.bids[0].first==100);
-    BOOST_TEST(levels.bids[0].second==10);
+    BOOST_TEST(levels.bids[0].price==100);
+    BOOST_TEST(levels.bids[0].quantity==10);
 }
 
 BOOST_AUTO_TEST_CASE( booklevels_sum ) {
@@ -58,10 +58,10 @@ BOOST_AUTO_TEST_CASE( booklevels_sum ) {
     auto o2 = new TestOrder(2,100,10,BUY);
     ob.insertOrder(o2);
 
-    auto levels = ob.book().levels();
+    auto levels = ob.book();
     
-    BOOST_TEST(levels.bids[0].first==100);
-    BOOST_TEST(levels.bids[0].second==20);
+    BOOST_TEST(levels.bids[0].price==100);
+    BOOST_TEST(levels.bids[0].quantity==20);
 }
 
 BOOST_AUTO_TEST_CASE( booklevels_multiple ) {
@@ -75,10 +75,10 @@ BOOST_AUTO_TEST_CASE( booklevels_multiple ) {
     auto o3 = new TestOrder(2,200,30,BUY);
     ob.insertOrder(o3);
 
-    auto levels = ob.book().levels();
+    auto levels = ob.book();
     
-    BOOST_TEST(levels.bids[0].first==200);
-    BOOST_TEST(levels.bids[0].second==30);
-    BOOST_TEST(levels.bids[1].first==100);
-    BOOST_TEST(levels.bids[1].second==20);
+    BOOST_TEST(levels.bids[0].price==200);
+    BOOST_TEST(levels.bids[0].quantity==30);
+    BOOST_TEST(levels.bids[1].price==100);
+    BOOST_TEST(levels.bids[1].quantity==20);
 }

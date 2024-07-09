@@ -7,7 +7,7 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Test config",
+            "name": "Test Config",
             "program": "${workspaceFolder}/bin/orderbook_test",
             "args": [],
             "cwd": "${workspaceFolder}"

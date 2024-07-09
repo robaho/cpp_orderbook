@@ -22,10 +22,10 @@ public:
     auto book() {
         return Exchange::book("dummy");
     }
-    auto bidList() { return book().bids; }
-    auto askList() { return book().asks; }
-    int bidIndex(long exchangeId) { auto _book = book(); return Book::indexOf(_book.bids,exchangeId); }
-    int askIndex(long exchangeId) { auto _book = book(); return Book::indexOf(_book.asks,exchangeId); }
+    auto bidCount() { return book().bids.size(); }
+    auto askCount() { return book().asks.size(); }
+    int bidIndex(long exchangeId) { auto b = book(); return std::find(b.bidOrderIds.begin(),b.bidOrderIds.end(),exchangeId) - b.bidOrderIds.begin(); }
+    int askIndex(long exchangeId) { auto b = book(); return std::find(b.askOrderIds.begin(),b.askOrderIds.end(),exchangeId) - b.askOrderIds.begin(); }
 };
 
 struct TestListener : ExchangeListener {
@@ -45,8 +45,8 @@ BOOST_AUTO_TEST_CASE( insertOrder_buy ) {
     auto o1_id = ob.buy(1.0,10,"1");
     auto o2_id = ob.buy(2.0,10,"2");
 
-    BOOST_TEST( ob.bidList().size()==2);
-    BOOST_TEST( ob.askList().size()==0);
+    BOOST_TEST( ob.bidCount()==2);
+    BOOST_TEST( ob.askCount()==0);
 
     BOOST_TEST( ob.bidIndex(o2_id) == 0, o2_id);
     BOOST_TEST( ob.bidIndex(o1_id) == 1, o1_id);
@@ -60,8 +60,8 @@ BOOST_AUTO_TEST_CASE( insertOrder_buy2 ) {
 
     // should end up with same ordering
 
-    BOOST_TEST( ob.bidList().size()==2);
-    BOOST_TEST( ob.askList().size()==0);
+    BOOST_TEST( ob.bidCount()==2);
+    BOOST_TEST( ob.askCount()==0);
 
     BOOST_TEST( ob.bidIndex(o2_id) == 0);
     BOOST_TEST( ob.bidIndex(o1_id) == 1);
@@ -72,8 +72,8 @@ BOOST_AUTO_TEST_CASE( insertOrder_sell ) {
     auto o1_id = ob.sell(1.0,10,"1");
     auto o2_id = ob.sell(2.0,10,"2");
 
-    BOOST_TEST( ob.bidList().size()==0);
-    BOOST_TEST( ob.askList().size()==2);
+    BOOST_TEST( ob.bidCount()==0);
+    BOOST_TEST( ob.askCount()==2);
 
     BOOST_TEST( ob.askIndex(o2_id) == 1);
     BOOST_TEST( ob.askIndex(o1_id) == 0);
@@ -85,8 +85,8 @@ BOOST_AUTO_TEST_CASE( insertOrder_sell2 ) {
     auto o2_id = ob.sell(2.0,10,"2");
     auto o1_id = ob.sell(1.0,10,"1");
 
-    BOOST_TEST( ob.bidList().size()==0);
-    BOOST_TEST( ob.askList().size()==2);
+    BOOST_TEST( ob.bidCount()==0);
+    BOOST_TEST( ob.askCount()==2);
 
     BOOST_TEST( ob.askIndex(o2_id) == 1);
     BOOST_TEST( ob.askIndex(o1_id) == 0);
@@ -99,8 +99,9 @@ BOOST_AUTO_TEST_CASE( insertOrder_buy_same_price ) {
     auto o2_id = ob.buy(2.0,10,"2");
     auto o3_id = ob.buy(2.0,25,"3");
 
-    BOOST_TEST( ob.bidList().size()==3);
-    BOOST_TEST( ob.askList().size()==0);
+    BOOST_TEST( ob.bidCount()==2);
+    BOOST_TEST( ob.book().bidOrderIds.size()==3);
+    BOOST_TEST( ob.askCount()==0);
 
     BOOST_TEST( ob.bidIndex(o2_id) == 0);
     BOOST_TEST( ob.bidIndex(o3_id) == 1);
@@ -142,8 +143,8 @@ BOOST_AUTO_TEST_CASE( partial_fill ) {
     BOOST_TEST( ob.getOrder(o2_id).remainingQuantity() == 0);
     BOOST_TEST( ob.getOrder(o1_id).remainingQuantity() == 10);
 
-    BOOST_TEST( ob.bidList().size() == 1);
-    BOOST_TEST( ob.askList().size() == 0);
+    BOOST_TEST( ob.bidCount() == 1);
+    BOOST_TEST( ob.askCount() == 0);
 
 }
 
@@ -159,7 +160,7 @@ BOOST_AUTO_TEST_CASE( cancel ) {
 
     // should be an event for the order and the cancel
     BOOST_TEST( listener.orders.size()==2);
-    BOOST_TEST( ob.bidList().size() == 0);
+    BOOST_TEST( ob.bidCount() == 0);
 }
 
 BOOST_AUTO_TEST_CASE( market_buy ) {
@@ -173,8 +174,8 @@ BOOST_AUTO_TEST_CASE( market_buy ) {
 
     BOOST_TEST( listener.orders.size()==4);
     BOOST_TEST( listener.trades.size()==1);
-    BOOST_TEST( ob.bidList().size() == 0);
-    BOOST_TEST( ob.askList().size() == 1);
+    BOOST_TEST( ob.bidCount() == 0);
+    BOOST_TEST( ob.askCount() == 1);
 }
 
 BOOST_AUTO_TEST_CASE( market_buy_cancel_remaining ) {
@@ -188,8 +189,8 @@ BOOST_AUTO_TEST_CASE( market_buy_cancel_remaining ) {
 
     BOOST_TEST( listener.orders.size()==5);
     BOOST_TEST( listener.trades.size()==1);
-    BOOST_TEST( ob.bidList().size() == 0);
-    BOOST_TEST( ob.askList().size() == 0);
+    BOOST_TEST( ob.bidCount() == 0);
+    BOOST_TEST( ob.askCount() == 0);
 }
 
 BOOST_AUTO_TEST_CASE( market_buy_multi_level ) {
@@ -206,9 +207,9 @@ BOOST_AUTO_TEST_CASE( market_buy_multi_level ) {
     // initial orders (3) + 2x2 updates due to trades (1 full and 1 partial) = 7 statuses
     BOOST_TEST( listener.orders.size()==7);
     BOOST_TEST( listener.trades.size()==2);
-    BOOST_TEST( ob.bidList().size() == 0);
-    BOOST_TEST( ob.askList().size() == 1);
-    BOOST_TEST( ob.askList()[0].remainingQuantity() == 10);
+    BOOST_TEST( ob.bidCount() == 0);
+    BOOST_TEST( ob.askCount() == 1);
+    BOOST_TEST( ob.book().asks[0].quantity == 10);
 }
 
 
@@ -222,8 +223,8 @@ BOOST_AUTO_TEST_CASE( market_buy_one_sided ) {
 
     BOOST_TEST( listener.orders.size()==2);
     BOOST_TEST( listener.trades.size()==0);
-    BOOST_TEST( ob.bidList().size() == 0);
-    BOOST_TEST( ob.askList().size() == 0);
+    BOOST_TEST( ob.bidCount() == 0);
+    BOOST_TEST( ob.askCount() == 0);
 }
 
 BOOST_AUTO_TEST_CASE( order_immutability ) {

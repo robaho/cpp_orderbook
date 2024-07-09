@@ -13,17 +13,17 @@
         }
     ],
     "boost-test-adapter-robaho.tests": [
-        { 
-            "testExecutables": [ 
+        {
+            "testExecutables": [
                 {
-                    "path": "bin/exchange_test"
-                },
-                {
-                    "path": "bin/orderbook_test"
+                    "glob": "**/*{_test,_test.exe}"
                 }
             ],
-            "cwd": "${workspaceFolder}",
-            "debugConfig": "Test config",
+            "debugConfig": "Test Config"
         }
-    ]
+    ],
+
+
+
+
 }

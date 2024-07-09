@@ -6,18 +6,6 @@
 
 #define LOCK_BOOK() std::lock_guard<std::mutex> lock(mu)
 
-void OrderList::insertOrder(Order *order) {
-    auto cmp = [this](Order*a,Order*b) {
-        return lessFn(a,b);
-    };
-    auto itr = std::lower_bound(begin(),end(),order,cmp);
-    if(itr==end()) {
-        push_back(order);
-    } else {
-        insert(itr,order);
-    }
-}
-
 void OrderBook::insertOrder(Order *order) {
     LOCK_BOOK();
     auto list = order->side == BUY ? &bids : &asks;
@@ -44,10 +32,10 @@ void OrderBook::matchOrders(Side aggressorSide) {
             auto trade = new Trade(price,qty,*aggressor,*opposite);
 
             if(bid->remaining==0) {
-                bids.erase(bids.begin());
+                bids.removeOrder(bid);
             }
             if(ask->remaining==0) {
-                asks.erase(asks.begin());
+                asks.removeOrder(ask);
             }
             listener.onOrder(*bid);
             listener.onOrder(*ask);
@@ -61,7 +49,7 @@ void OrderBook::matchOrders(Side aggressorSide) {
         auto order = orders->front();
         if(order->isMarket()) { 
             order->cancel();
-            orders->erase(orders->begin());
+            orders->removeOrder(order);
             listener.onOrder(*order);
         }
     }
@@ -72,8 +60,7 @@ int OrderBook::cancelOrder(Order *order) {
     if(order->remaining>0) {
         order->cancel();
         auto orders = order->side == BUY ? &bids : &asks;
-        auto itr = orders->find(order);
-        orders->erase(itr);
+        orders->removeOrder(order);
         listener.onOrder(*order);
         return 0;
     } else {
@@ -84,16 +71,21 @@ int OrderBook::cancelOrder(Order *order) {
 const Book OrderBook::book() {
     LOCK_BOOK();
     Book book;
-    auto snap = [](const OrderList& src,std::vector<Order> &dst) {
-        for(auto itr=src.begin();itr<src.end();itr++) {
-            auto order = *itr;
-            dst.push_back(*order);
+    auto snap = [](const PriceLevels& src,std::vector<BookLevel> &dst, std::vector<long> &oids) {
+        for(auto level=src.levels.begin();level!=src.levels.end();level++) {
+            auto orders = level->second;
+            int quantity(0);
+            for(auto node=orders.head;node!=nullptr;node=node->next) {
+                quantity = quantity + node->order->remainingQuantity();
+                oids.push_back(node->order->exchangeId);
+            }
+            dst.push_back(BookLevel(level->first,quantity));
         }
     };
     book.bids.reserve(bids.size());
     book.asks.reserve(asks.size());
-    snap(bids,book.bids);
-    snap(asks,book.asks);
+    snap(bids,book.bids,book.bidOrderIds);
+    snap(asks,book.asks,book.askOrderIds);
     return book;
 }
 

@@ -31,6 +31,8 @@ public:
     int cancel(long exchangeId);
     const Book book(std::string instrument);
     const Order getOrder(long exchangeId);
+protected:
+    OrderBook* orderBook(std::string symbol) { return books[symbol]; }
 private:
     std::unordered_map<std::string,OrderBook*> books;
     std::map<long,Order*> allOrders;

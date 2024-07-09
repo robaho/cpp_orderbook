@@ -10,40 +10,44 @@
 #include <deque>
 
 #include "order.h"
+#include "orderlist.h"
+#include "fixed.h"
 
-class OrderList : private std::deque<Order*> {
+struct price_compare {
+    explicit price_compare(bool ascending) : ascending(ascending) {}
+    template<class T, class U>
+    bool operator()(const T& t, const U& u) const {
+        if(ascending) { return t < u; }
+        else { return t > u; }
+    }
+    bool ascending;
+};
+
+class PriceLevels {
 friend class OrderBook;
 private:
-    void insertOrder(Order *order);
+    void insertOrder(Order *order) {
+        auto itr = levels.find(order->price);
+        if(itr==levels.end()) {
+            levels[order->price] = OrderList{};
+        }
+        levels[order->price].pushback(order);
+    }
+    void removeOrder(Order *order) {
+        auto itr = levels.find(order->price);
+        if(itr==levels.end()) throw new std::runtime_error("price level for order does not exist");
+        levels[order->price].remove(order);
+        if(levels[order->price].front()==nullptr) {
+            levels.erase(order->price);
+        }
+    }
     const bool ascending;
-    bool lessFn(Order *a,Order *b) {
-        if(a->price==b->price) return a->timeSubmitted < b->timeSubmitted;
-        return ascending ? a->price < b->price : b->price < a->price;
-    };
-
+    std::map<F,OrderList,price_compare> levels;
 public:
-    OrderList(bool ascendingPrices) : ascending(ascendingPrices){}
-    int indexOf(long id) {
-        for(auto itr = begin();itr!=end();itr++) {
-            if((*itr)->exchangeId == id) {
-                return itr - begin();
-            }
-        }
-        return -1;
-    }
-    auto find(Order *order) {
-        auto cmp =[this](Order *a,Order*b) {
-            return lessFn(a,b);
-        };
-        auto itrs = std::equal_range(begin(),end(),order,cmp);
-        for(auto itr=itrs.first;itr!=itrs.second;itr++) {
-            if((*itr)==order) return itr;
-        }
-        return end();
-    }
-    int size() {
-        return deque::size();
-    }
+    PriceLevels(bool ascendingPrices) : ascending(ascendingPrices), levels(price_compare(ascendingPrices)) {}
+    bool empty() { return levels.empty(); }
+    Order* front() { return levels.begin()->second.front();}
+    int size() { return levels.size(); }
 };
 
 struct Trade {
@@ -65,37 +69,17 @@ public:
     virtual void onTrade(const Trade& trade){}
 };
 
-typedef std::pair<F,int> BookLevel;
-
-/** consolidated book levels by price and total quantity quantity */
-struct BookLevels {
-    std::vector<BookLevel> bids;
-    std::vector<BookLevel> asks;
+struct BookLevel {
+    const F price;
+    const int quantity;
+    BookLevel(F price,int quantity) : price(price), quantity(quantity){}
 };
 
 struct Book {
-    std::vector<Order> bids;
-    std::vector<Order> asks;
-    static int indexOf(std::vector<Order> &list,long exchangeId) {
-        auto itr = std::find_if(list.begin(),list.end(),[exchangeId](const Order& order){return order.exchangeId==exchangeId;});
-        return itr==list.end() ? -1 : itr-list.begin();
-    }
-    BookLevels levels() const {
-        BookLevels levels;
-        auto process = [](std::vector<BookLevel> &levels,const std::vector<Order> &orders) {
-            auto itr = orders.begin();
-            for(;itr!=orders.end();) {
-                int total = itr->quantity;
-                F price = itr->price;
-                while(++itr!=orders.end() && itr->price==price) {
-                    total+=itr->quantity;
-                }
-                levels.push_back(std::pair(price,total));
-            }
-        };
-        process(levels.bids,bids);
-        return levels;
-    }
+    std::vector<BookLevel> bids;
+    std::vector<long> bidOrderIds;
+    std::vector<BookLevel> asks;
+    std::vector<long> askOrderIds;
 };
 
 class Exchange;
@@ -103,8 +87,8 @@ class Exchange;
 class OrderBook {
 private:
     std::mutex mu;
-    OrderList bids = OrderList(false);    
-    OrderList asks = OrderList(true);
+    PriceLevels bids = PriceLevels(false);    
+    PriceLevels asks = PriceLevels(true);
     OrderBookListener& listener;
     void matchOrders(Side aggressorSide);
 public:
