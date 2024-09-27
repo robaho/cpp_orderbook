@@ -33,7 +33,8 @@ public:
         // Prefix increment
         Iterator& operator++() { current = current->next; return *this; }  
         friend bool operator== (const Iterator& a, const Iterator& b) { return a.current == b.current; };
-        friend bool operator!= (const Iterator& a, const Iterator& b) { return a.current != b.current; };     
+        friend bool operator!= (const Iterator& a, const Iterator& b) { return a.current != b.current; };
+        operator void *() const { return current; }     
     private:
         Iterator(Node *node) : current(node){}
         Node *current;
