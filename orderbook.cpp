@@ -29,7 +29,7 @@ void OrderBook::matchOrders(Side aggressorSide) {
             bid->fill(qty);
             ask->fill(qty);
 
-            auto trade = new Trade(price,qty,*aggressor,*opposite);
+            Trade trade(price,qty,*aggressor,*opposite);
 
             if(bid->remaining==0) {
                 bids.removeOrder(bid);
@@ -39,7 +39,7 @@ void OrderBook::matchOrders(Side aggressorSide) {
             }
             listener.onOrder(*bid);
             listener.onOrder(*ask);
-            listener.onTrade(*trade);
+            listener.onTrade(trade);
         } else {
             break;
         }
@@ -77,7 +77,7 @@ const Book OrderBook::book() {
         for(auto level=src.levels.begin();level!=src.levels.end();level++) {
             auto orders = level->second;
             int quantity(0);
-            for(auto itr=orders.begin();itr!=orders.end();++itr) {
+            for(auto itr=orders->begin();itr!=orders->end();++itr) {
                 quantity = quantity + (*itr)->remainingQuantity();
                 oids.push_back((*itr)->exchangeId);
             }

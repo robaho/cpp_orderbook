@@ -27,7 +27,10 @@ public:
     int askIndex(long exchangeId) { auto b = book(); return std::find(b.askOrderIds.begin(),b.askOrderIds.end(),exchangeId) - b.askOrderIds.begin(); }
 };
 
+static const std::string dummy_instrument = "dummy";
+static const std::string dummy_oid = "";
+
 class TestOrder : public Order {
 public:
-    TestOrder(long id,F price,int quantity,Side side) : Order("", "dummy",price,quantity,side,id) {}
+    TestOrder(long id,F price,int quantity,Side side) : Order(dummy_oid,dummy_instrument,price,quantity,side,id) {}
 };

@@ -16,9 +16,8 @@
 struct price_compare {
     explicit price_compare(bool ascending) : ascending(ascending) {}
     template<class T, class U>
-    bool operator()(const T& t, const U& u) const {
-        if(ascending) { return t < u; }
-        else { return t > u; }
+    inline bool operator()(const T& t, const U& u) const {
+        return (ascending) ? t < u : t > u;
     }
     const bool ascending;
 };
@@ -29,23 +28,23 @@ private:
     void insertOrder(Order *order) {
         auto itr = levels.find(order->price);
         if(itr==levels.end()) {
-            levels[order->price] = OrderList{};
+            levels[order->price] = new OrderList{};
         }
-        levels[order->price].pushback(order);
+        levels[order->price]->pushback(order);
     }
     void removeOrder(Order *order) {
         auto itr = levels.find(order->price);
         if(itr==levels.end()) throw new std::runtime_error("price level for order does not exist");
-        levels[order->price].remove(order);
-        if(levels[order->price].front()==nullptr) {
+        levels[order->price]->remove(order);
+        if(levels[order->price]->front()==nullptr) {
             levels.erase(order->price);
         }
     }
-    std::map<F,OrderList,price_compare> levels;
+    std::map<F,OrderList*,price_compare> levels;
 public:
     PriceLevels(bool ascendingPrices) : levels(price_compare(ascendingPrices)) {}
     bool empty() { return levels.empty(); }
-    Order* front() { return levels.begin()->second.front();}
+    Order* front() { return levels.begin()->second->front();}
     int size() { return levels.size(); }
 };
 

@@ -4,23 +4,12 @@
 
 #include "order.h"
 
-
-class Node {
-friend class OrderList;
-private:
-    Node* prev=nullptr;
-    Node* next=nullptr;
-    Node(Order * const order) : order(order){}
-    Order * const order;
-};
-
 // TODO add forward_iterator support so that friend class in not needed
 class OrderList {
 friend class OrderBook;
 private:
     Node* head=nullptr;
     Node* tail=nullptr;
-    std::unordered_map<Order *,Node *> allOrders;
 public:
     struct Iterator 
     {
@@ -39,7 +28,8 @@ public:
         Node *current;
     };
     void pushback(Order * const order) {
-        auto node = new Node(order);
+        auto node = &order->node;
+        node->order = order;
         if(head==nullptr) {
             head=node;
             tail=node;
@@ -48,13 +38,11 @@ public:
             tail->next = node;
             tail = node;
         }
-        allOrders.insert({order,node});
     }
     void remove(Order * const order){
-        auto itr = allOrders.find(order);
-        if(itr==allOrders.end()) throw std::runtime_error("order not found");
-        auto node = itr->second;
-        allOrders.erase(itr);
+        if(order->node.order==nullptr) throw new std::runtime_error("node is null on removal");
+        auto node = &order->node;
+        order->node.order = nullptr;
         if(head==node) {
             head=node->next;
         } 
@@ -67,7 +55,6 @@ public:
         if(node->next) {
             node->next->prev = node->prev;
         }
-        delete node;
     }
     Order* front() {
         return head==nullptr ? nullptr : head->order;

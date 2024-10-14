@@ -1,5 +1,5 @@
 CXX = clang++
-# CXXFLAGS = -std=c++20 -Wall -fsanitize=address -fno-omit-frame-pointer -pedantic-errors -g -I include
+# CXXFLAGS = -std=c++20 -Wall -O0 -fsanitize=address -fno-omit-frame-pointer -pedantic-errors -g -I include
 # CXXFLAGS = -std=c++20 -Wall -pedantic-errors -g -I include
 CXXFLAGS = -std=c++20 -O3 -Wall -pedantic-errors -g -I include
 # CXXFLAGS = -std=c++20 -O3 -fprofile-generate -Wall -pedantic-errors -g -I include

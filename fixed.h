@@ -2,12 +2,13 @@
 
 #include <cstdlib>
 #include <string_view>
+#include <charconv>
 #include <unistd.h>
 #include <stdlib.h>
 #include <string>
 #include <cmath>
 
-constexpr double pow10(int exp)
+constexpr int pow10(uint32_t exp)
 {
     int total = 1;
     while(exp--) total*=10;
@@ -67,18 +68,21 @@ private:
         return buf+i;
     }
 
-    explicit Fixed(int64_t raw) {
+    inline explicit Fixed(int64_t raw) {
         fp=raw;
     }
 public:
     constexpr static const int BUFFER_SIZE = 24;
+    const static Fixed<nPlaces> NaN() {
+        return Fixed((int64_t)nan);
+    }
 
     Fixed(const char *s) {
+        const char* exp = nullptr;
         for(auto *cp=s;*cp;cp++) {
             if(*cp=='E' || *cp=='e') {
-                double f = atof(s);
-                fp = Fixed(f).fp;
-                return;
+                exp = cp;
+                break;
             }
         }
         if(strcmp(s,"NaN")==0) {
@@ -93,7 +97,7 @@ public:
             auto cp = decimal + 1;
             f = 0;
             for(int p = 0; p<nPlaces;p++) {
-                if(*cp==0) f*=10;
+                if(*cp==0 || *cp=='E' || *cp=='e') f*=10;
                 else f = f*10 + (*cp++)-'0';
             }
         }
@@ -102,6 +106,53 @@ public:
             i*=-1;
         }
         fp = (sign * (i*scale +f));
+        if(exp) {
+            auto _exp = atoll(exp+1);
+            if(_exp>=0)
+                fp *= pow10(std::abs(_exp));
+            else
+                fp /= pow10(std::abs(_exp));
+        }
+    }
+    Fixed(std::string_view s) {
+        const char* end = s.data()+s.length();
+        const char* exp = nullptr;
+        for(auto *cp=s.data();cp!=end;cp++) {
+            if(*cp=='E' || *cp=='e') {
+                exp = cp;
+                break;
+            }
+        }
+        if(s=="NaN") {
+            fp = nan;
+            return;
+        }
+        auto decimal = s.find('.');
+        int64_t i;
+        std::from_chars(s.data(),end,i);
+        int64_t f = 0;
+        int64_t sign = 1;
+        if(decimal>=0) {
+            auto cp = s.data() + decimal + 1;
+            f = 0;
+            for(int p = 0; p<nPlaces;p++) {
+                if(cp==exp || cp==end) f*=10;
+                else f = f*10 + (*cp++)-'0';
+            }
+        }
+        if(i<0) {
+            sign=-1;
+            i*=-1;
+        }
+        fp = (sign * (i*scale +f));
+        if(exp) {
+            int _exp;
+            std::from_chars(exp+1,end,_exp);
+            if(_exp>=0)
+                fp *= pow10(std::abs(_exp));
+            else
+                fp /= pow10(std::abs(_exp));
+        }
     }
     Fixed(double f) {
         if(isnan(f)) {
@@ -125,26 +176,26 @@ public:
         }
         fp = i * pow10(nPlaces-n);
     }
-    bool isNaN() const { return fp == nan; }
-    bool isZero() const { return fp == 0; }
-    Fixed(const Fixed& other) {
+    inline bool isNaN() const { return fp == nan; }
+    inline bool isZero() const { return fp == 0; }
+    inline Fixed(const Fixed& other) {
         fp = other.fp;
     }
-    Fixed(Fixed&& other) {
+    inline Fixed(Fixed&& other) {
         fp = other.fp;
     }
 
-    explicit operator double() const {
+    inline explicit operator double() const {
         return ((double)fp) / (double)scale;
     }
 
-    bool operator==(const Fixed& other) const {
+    inline bool operator==(const Fixed& other) const {
         return fp == other.fp;
     }
     bool operator==(const char* s) const {
         return fp == Fixed(s).fp;
     }
-    Fixed& operator=(const Fixed& other) {
+    inline Fixed& operator=(const Fixed& other) {
         if(fp==nan || other.fp==nan) {
             fp = nan;
         } else {
@@ -152,7 +203,7 @@ public:
         }
         return *this;
     }
-    Fixed& operator=(Fixed&& other) {
+    inline Fixed& operator=(Fixed&& other) {
         if(fp==nan || other.fp==nan) {
             fp = nan;
         } else {
@@ -161,14 +212,14 @@ public:
         return *this;
     }
 
-    Fixed operator+(const Fixed& other) const {
+    inline Fixed operator+(const Fixed& other) const {
         if(fp==nan || other.fp==nan) {
             return Fixed((int64_t)nan);
         } else {
             return Fixed((int64_t)(fp + other.fp));
         }
     }
-    Fixed operator-(const Fixed& other) const {
+    inline Fixed operator-(const Fixed& other) const {
         if(fp==nan || other.fp==nan) {
             return Fixed((int64_t)nan);
         } else {
@@ -176,7 +227,7 @@ public:
         }
         return *this;
     }
-    Fixed operator*(const Fixed& other) const {
+    inline Fixed operator*(const Fixed& other) const {
         if(fp==nan || other.fp==nan) {
             return Fixed((int64_t)nan);
         }
@@ -186,35 +237,37 @@ public:
         auto fp0_a = other.fp / scale;
         auto fp0_b = other.fp % scale;
 
+        auto _sign = sign()*other.sign();
+
         int64_t result=0;
         if (fp0_a != 0) {
             result = fp_a*fp0_a*scale + fp_b*fp0_a;
         }
         if (fp0_b != 0) {
-            result = result + (fp_a * fp0_b) + ((fp_b)*fp0_b)/scale;
+            result = result + (fp_a * fp0_b) + ((fp_b)*fp0_b+5*_sign*(scale/10))/scale;
         }
         return Fixed((int64_t)result);
     }
-    Fixed operator/(const Fixed& other) const {
+    inline Fixed operator/(const Fixed& other) const {
         auto d1 = operator double();
         auto d2 = double(other);
         return Fixed(d1/d2);
     }
-    bool operator<(const Fixed& other) const {
+    inline bool operator<(const Fixed& other) const {
         return cmp(other) < 0;
     }
-    bool operator<=(const Fixed& other) const {
+    inline bool operator<=(const Fixed& other) const {
         return cmp(other) <= 0;
     }
-    bool operator>(const Fixed& other) const {
+    inline bool operator>(const Fixed& other) const {
         return cmp(other) > 0;
     }
-    bool operator>=(const Fixed& other) const {
+    inline bool operator>=(const Fixed& other) const {
         return cmp(other) >= 0;
     }
 
-    int cmp(const Fixed& other) const {
-        if (isNaN() && other.isNaN()) {
+    inline int cmp(const Fixed& other) const {
+        if(fp == other.fp) {
             return 0;
         }
         if(isNaN()) {
@@ -222,10 +275,6 @@ public:
         }
         if(other.isNaN()) {
             return -1;
-        }
-
-        if(fp == other.fp) {
-            return 0;
         }
         if(fp<other.fp){
             return -1;

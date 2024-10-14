@@ -32,7 +32,7 @@ void insertOrders() {
     }
     auto end = std::chrono::system_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    std::cout << "process orders " << duration.count() << " usecs, usec per order " << (duration.count()/(double)(N_ORDERS*2)) << ", orders per sec " << (int)(((N_ORDERS*2)/(duration.count()/1000000.0))) << "\n";
+    std::cout << "insert orders without trades, usec per order " << (duration.count()/(double)(N_ORDERS*2)) << ", orders per sec " << (int)(((N_ORDERS*2)/(duration.count()/1000000.0))) << "\n";
     if(listener.tradeCount!=0) throw std::runtime_error("trade count should be 0");
 }
 
@@ -53,7 +53,7 @@ void insertOrdersWithTrades() {
     }
     auto end = std::chrono::system_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    std::cout << "insert orders with trades " << duration.count() << " usecs, usec per order " << (duration.count()/(double)(N_ORDERS*2)) << ", orders per sec " << (int)(((N_ORDERS*2)/(duration.count()/1000000.0))) << "\n";
+    std::cout << "insert orders with trades, usec per order " << (duration.count()/(double)(N_ORDERS*2)) << ", orders per sec " << (int)(((N_ORDERS*2)/(duration.count()/1000000.0))) << "\n";
     std::cout << "insert orders with trades, " << listener.tradeCount << " trades\n";
 }
 
@@ -86,7 +86,7 @@ void cancelOrders() {
     auto end = std::chrono::system_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
 
-    std::cout << "cancel orders " << duration.count() << " usecs, usec per order " << (duration.count()/(double)(N_ORDERS)) << "\n";
+    std::cout << "cancel orders, usec per order " << (duration.count()/(double)(N_ORDERS)) << ", orders per sec " << (int)(((N_ORDERS)/(duration.count()/1000000.0))) << "\n";
 }
 
 int main(int argc,char **argv) {
