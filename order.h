@@ -31,7 +31,7 @@ private:
     bool isMarket() { return price == DBL_MAX || price == -DBL_MAX; } // could add "type" property, but not necessary for only limit and market orders
 protected:
     // protected to allow testcase
-    Order(std::string orderId,std::string instrument,F price,int quantity,Side side,long exchangeId) : orderId(orderId), instrument(instrument), exchangeId(exchangeId) , price(price), quantity(quantity), side(side), remaining(quantity), timeSubmitted(epoch()){}
+    Order(std::string orderId,std::string instrument,F price,int quantity,Side side,long exchangeId) : timeSubmitted(epoch()), remaining(quantity), orderId(orderId), instrument(instrument), exchangeId(exchangeId) , price(price), quantity(quantity), side(side) {}
 public:
     const std::string orderId;
     const std::string instrument; 

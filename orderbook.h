@@ -20,7 +20,7 @@ struct price_compare {
         if(ascending) { return t < u; }
         else { return t > u; }
     }
-    bool ascending;
+    const bool ascending;
 };
 
 class PriceLevels {
@@ -41,10 +41,9 @@ private:
             levels.erase(order->price);
         }
     }
-    const bool ascending;
     std::map<F,OrderList,price_compare> levels;
 public:
-    PriceLevels(bool ascendingPrices) : ascending(ascendingPrices), levels(price_compare(ascendingPrices)) {}
+    PriceLevels(bool ascendingPrices) : levels(price_compare(ascendingPrices)) {}
     bool empty() { return levels.empty(); }
     Order* front() { return levels.begin()->second.front();}
     int size() { return levels.size(); }

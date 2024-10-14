@@ -144,8 +144,8 @@ BOOST_AUTO_TEST_CASE( market_buy ) {
 
     TestExchange ob(listener);
 
-    auto o1_id = ob.sell(1.0,20,"1");
-    auto o2_id = ob.marketBuy(10,"2");
+    ob.sell(1.0,20,"1");
+    ob.marketBuy(10,"2");
 
     BOOST_TEST( listener.orders.size()==4);
     BOOST_TEST( listener.trades.size()==1);
@@ -159,8 +159,8 @@ BOOST_AUTO_TEST_CASE( market_buy_cancel_remaining ) {
 
     TestExchange ob(listener);
 
-    auto o1_id = ob.sell(1.0,20,"1");
-    auto o2_id = ob.marketBuy(30,"2");
+    ob.sell(1.0,20,"1");
+    ob.marketBuy(30,"2");
 
     BOOST_TEST( listener.orders.size()==5);
     BOOST_TEST( listener.trades.size()==1);
@@ -174,10 +174,10 @@ BOOST_AUTO_TEST_CASE( market_buy_multi_level ) {
 
     TestExchange ob(listener);
 
-    auto o1_id = ob.sell(1.0,20,"1");
-    auto o2_id = ob.sell(2.0,20,"2");
+    ob.sell(1.0,20,"1");
+    ob.sell(2.0,20,"2");
 
-    auto o3_id = ob.marketBuy(30,"3");
+    ob.marketBuy(30,"3");
 
     // initial orders (3) + 2x2 updates due to trades (1 full and 1 partial) = 7 statuses
     BOOST_TEST( listener.orders.size()==7);
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE( market_buy_one_sided ) {
 
     TestExchange ob(listener);
 
-    auto o1_id = ob.marketBuy(30,"1");
+    ob.marketBuy(30,"1");
 
     BOOST_TEST( listener.orders.size()==2);
     BOOST_TEST( listener.trades.size()==0);
