@@ -17,7 +17,7 @@ struct price_compare {
     explicit price_compare(bool ascending) : ascending(ascending) {}
     template<class T, class U>
     inline bool operator()(const T& t, const U& u) const {
-        return (ascending) ? t < u : t > u;
+        return (ascending) ? t->price < u : t->price > u;
     }
     const bool ascending;
 };
@@ -26,25 +26,30 @@ class PriceLevels {
 friend class OrderBook;
 private:
     void insertOrder(Order *order) {
-        auto itr = levels.find(order->price);
-        if(itr==levels.end()) {
-            levels[order->price] = new OrderList{};
-        }
-        levels[order->price]->pushback(order);
+        auto itr = std::lower_bound(levels.begin(),levels.end(),order->price, cmpFn);
+        OrderList *list;
+        if(itr==levels.end() || (*itr)->price!=order->price) {
+            list = new OrderList(order->price);
+            levels.insert(itr,list);
+        } else list = *itr;
+        list->pushback(order);
     }
     void removeOrder(Order *order) {
-        auto itr = levels.find(order->price);
-        if(itr==levels.end()) throw new std::runtime_error("price level for order does not exist");
-        levels[order->price]->remove(order);
-        if(levels[order->price]->front()==nullptr) {
-            levels.erase(order->price);
+        auto itr = std::lower_bound(levels.begin(),levels.end(),order->price, cmpFn);
+        if(itr==levels.end() || (*itr)->price!=order->price) throw new std::runtime_error("price level for order does not exist");
+        OrderList *list = *itr;
+        list->remove(order);
+        if(list->front()==nullptr) {
+            levels.erase(itr);
+            free(list);
         }
     }
-    std::map<F,OrderList*,price_compare> levels;
+    const price_compare cmpFn;
+    std::deque<OrderList*> levels;
 public:
-    PriceLevels(bool ascendingPrices) : levels(price_compare(ascendingPrices)) {}
+    PriceLevels(bool ascendingPrices) : cmpFn(price_compare(ascendingPrices)) {}
     bool empty() { return levels.empty(); }
-    Order* front() { return levels.begin()->second->front();}
+    Order* front() { return levels.front()->front();}
     int size() { return levels.size(); }
 };
 

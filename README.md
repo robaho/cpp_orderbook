@@ -20,13 +20,13 @@ Running OSX on a single 4.0 ghz Intel processor:
 
 ```
 Insert orders at 5M per second.
-Insert orders with 30% trade match, 3M per second.
-Cancel orders at 3.5M per second.
+Insert orders with 30% trade match, 4M per second.
+Cancel orders at 4M per second.
 ```
 
 It could probably bit a faster, but the design biases towards readability and safety.
 
-See `performance_test.cpp` for the tests.
+See `performance_test.cpp` for the performance tests.
 
 ## Next Steps
 

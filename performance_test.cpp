@@ -90,6 +90,7 @@ void cancelOrders() {
 }
 
 int main(int argc,char **argv) {
+    std::cout << "sizeof Fixed " << sizeof(F) << "\n";
     insertOrders();
     insertOrdersWithTrades();
     cancelOrders();

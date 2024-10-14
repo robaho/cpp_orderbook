@@ -5,7 +5,7 @@
 #include "test.h"
 
 BOOST_AUTO_TEST_CASE( orderlist ) {
-    OrderList list;
+    OrderList list(100);
     BOOST_TEST(list.front()==nullptr);
     auto o = new TestOrder(1,100,10,BUY);
     list.pushback(o);
@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE( orderlist ) {
     BOOST_TEST(list.front()==nullptr);
 }
 BOOST_AUTO_TEST_CASE( orderlist_iterator ) {
-    OrderList list;
+    OrderList list(100);
     BOOST_TEST(list.begin()==list.end());
     auto o = new TestOrder(1,100,10,BUY);
     list.pushback(o);

@@ -11,6 +11,8 @@ private:
     Node* head=nullptr;
     Node* tail=nullptr;
 public:
+    const F price;
+    OrderList(F price) : price(price){}
     struct Iterator 
     {
         friend class OrderList;
