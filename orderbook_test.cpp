@@ -78,3 +78,31 @@ BOOST_AUTO_TEST_CASE( booklevels_multiple ) {
     BOOST_TEST(levels.bids[1].price==100);
     BOOST_TEST(levels.bids[1].quantity==20);
 }
+
+BOOST_AUTO_TEST_CASE( booklevels_order ) {
+    OrderBookListener listener;
+    OrderBook ob(listener);
+
+    ob.insertOrder(new TestOrder(1,100,10,BUY));
+    ob.insertOrder(new TestOrder(1,101,10,BUY));
+    ob.insertOrder(new TestOrder(1,99,10,BUY));
+    ob.insertOrder(new TestOrder(1,98,10,BUY));
+
+    ob.insertOrder(new TestOrder(1,200,10,SELL));
+    ob.insertOrder(new TestOrder(1,199,10,SELL));
+    ob.insertOrder(new TestOrder(1,201,10,SELL));
+    ob.insertOrder(new TestOrder(1,202,10,SELL));
+
+
+    auto levels = ob.book();
+    
+    BOOST_TEST(levels.bids[0].price==101);
+    BOOST_TEST(levels.bids[1].price==100);
+    BOOST_TEST(levels.bids[2].price==99);
+    BOOST_TEST(levels.bids[3].price==98);
+
+    BOOST_TEST(levels.asks[0].price==199);
+    BOOST_TEST(levels.asks[1].price==200);
+    BOOST_TEST(levels.asks[2].price==201);
+    BOOST_TEST(levels.asks[3].price==202);
+}
