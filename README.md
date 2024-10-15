@@ -16,17 +16,21 @@ See `exchange.h` for the public api. `orderbook.h` is the internal single thread
 
 ## Performance
 
-Running OSX on a 8-core 4.0 ghz Intel processor:
+Running OSX on a 8-core 4.0 ghz Intel processor (only 4 real cores) with a single instrument.
 
 ```
-Insert orders at 5M per second.
+Insert orders at 5.5M per second.
 Insert orders with 30% trade match, 4M per second.
 Cancel orders at 4M per second.
 ```
 
-The multithread test does not achieve linear speed-up - only about 7.5M orders per second (with 31% trade match) on the same machine. The reason being that since order submission and match is so efficient (only about 200 nano)
-the contention on the shared global OrderMap instance costs more than the operation itself. If the submission was more realistic (persistence, network market data, etc) then
-the parallelization would be more effective. The SpinLock implementation is super basic and changing OrderMap to be lock free would be better.
+Running same hardware with an instrument per core:
+```
+Insert orders at 21M per second.
+Insert orders with 31% trade match, 17M per second.
+Cancel orders at 15M per second.
+```
+Since the test is fully cpu bound, only the 4 real cores can be utilized but still achieving a linear speedup. This is achieved using a few highly efficient lock-free structures.
 
 It could probably bit a faster, but the design biases towards readability and safety.
 

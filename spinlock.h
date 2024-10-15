@@ -11,7 +11,7 @@ class Guard {
 friend class SpinLock;
 public:
     ~Guard() {
-        mutex.clear();
+        mutex.clear(std::memory_order_release);
         mutex.notify_one();
         // std::cout << "unlocked by guard\n";
     }
@@ -39,7 +39,7 @@ public:
         return mutex.test_and_set()==false;
     }
     void unlock() {
-        mutex.clear();
+        mutex.clear(std::memory_order_release);
         mutex.notify_one();
     }
     bool is_locked() {

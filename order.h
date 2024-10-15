@@ -15,6 +15,7 @@ enum Side { BUY, SELL};
 
 class Exchange;
 class OrderList;
+class OrderMap;
 
 struct Order;
 
@@ -31,8 +32,11 @@ private:
 struct Order {
 friend class OrderBook;
 friend class OrderList;
+friend class OrderMap;
 friend class Exchange;
 private:
+    /** used to enqueue Order in OrderMap */
+    Order *next = nullptr;
     /** holds Node in OrderList for quick removal */
     Node node;
     const TimePoint timeSubmitted;

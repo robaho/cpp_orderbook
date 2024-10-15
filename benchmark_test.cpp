@@ -18,32 +18,13 @@ struct TestListener : OrderBookListener {
     }
 };
 
-void insertOrders() {
-    TestListener listener;
-    OrderBook ob(dummy_instrument,listener);
-
-    static const int N_ORDERS = 5000000;
-
-    auto start = std::chrono::system_clock::now();
-
-    for(int i=0;i<N_ORDERS;i++) {
-        ob.insertOrder(new TestOrder(i,5000.0 - 1 * (i%1000),10,BUY));
-    }
-    for(int i=0;i<N_ORDERS;i++) {
-        ob.insertOrder(new TestOrder(N_ORDERS+i,50001.0 + 1 * (i%1000),10,SELL));
-    }
-    auto end = std::chrono::system_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    std::cout << "insert orders without trades, usec per order " << (duration.count()/(double)(N_ORDERS*2)) << ", orders per sec " << (int)(((N_ORDERS*2)/(duration.count()/1000000.0))) << "\n";
-    if(listener.tradeCount!=0) throw std::runtime_error("trade count should be 0");
-}
-
-void insertOrdersWithTrades() {
+void insertOrders(const bool withTrades) {
 
     TestListener listener;
     OrderBook ob(dummy_instrument,listener);
 
     static const int N_ORDERS = 5000000;
+    static const int TOTAL_ORDERS = N_ORDERS * 2;
 
     auto start = std::chrono::system_clock::now();
 
@@ -51,12 +32,12 @@ void insertOrdersWithTrades() {
         ob.insertOrder(new TestOrder(i,5000.0 + 1 * (i%1000),10,BUY));
     }
     for(int i=0;i<N_ORDERS;i++) {
-        ob.insertOrder(new TestOrder(N_ORDERS+i,5000.0 + 1 * (i%1000),10,SELL));
+        ob.insertOrder(new TestOrder(N_ORDERS+i,(withTrades ? 5000.0 : 10000.0) + 1 * (i%1000),10,SELL));
     }
     auto end = std::chrono::system_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    std::cout << "insert orders with trades, usec per order " << (duration.count()/(double)(N_ORDERS*2)) << ", orders per sec " << (int)(((N_ORDERS*2)/(duration.count()/1000000.0))) << "\n";
-    std::cout << "insert orders with trades, " << listener.tradeCount << " trades\n";
+    std::cout << "insert orders, usec per order " << (duration.count()/(double)(N_ORDERS*2)) << ", orders per sec " << (int)(((N_ORDERS*2)/(duration.count()/1000000.0))) << "\n";
+    std::cout << "insert orders with trade match % " << (listener.tradeCount*100/TOTAL_ORDERS) << "\n";
 }
 
 /** tests the time to remove an order at a random position in the OrderBook */
@@ -92,8 +73,8 @@ void cancelOrders() {
 }
 
 int main(int argc,char **argv) {
-    std::cout << "sizeof Fixed " << sizeof(F) << "\n";
-    insertOrders();
-    insertOrdersWithTrades();
+    std::cout << "sizeof Fixed " << sizeof(F) << " number of cores " << std::thread::hardware_concurrency() << "\n";
+    insertOrders(false);
+    insertOrders(true);
     cancelOrders();
 }

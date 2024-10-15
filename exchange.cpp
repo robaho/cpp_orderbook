@@ -2,6 +2,7 @@
 #include "orderbook.h"
 #include <mutex>
 #include <stdexcept>
+#include <string>
 
 #define LOCK_EXCHANGE() std::lock_guard<std::mutex> lock(mu)
 #define UNLOCK_EXCHANGE() lock.
@@ -13,15 +14,10 @@ Exchange::Exchange() : listener(dummy) {}
 
 const Order Exchange::getOrder(long exchangeId) {
     OrderBook* book;
-    Order* order;
-
-    {
-        auto guard = lock();
-        order = allOrders.get(exchangeId);
-    }
-    if(!order) throw std::runtime_error("invalid exchange order id");
+    Order* order = allOrders.get(exchangeId);
+    if(!order) throw std::runtime_error("invalid exchange order id "+std::to_string(exchangeId));
     book = books.get(order->instrument);
-    if(!book) throw std::runtime_error("invalid exchange order id");
+    if(!book) throw std::runtime_error("missing book for order id"+std::to_string(exchangeId));
     auto bookGuard = book->lock();
     return book->getOrder(order);
 }
@@ -36,15 +32,10 @@ const Book Exchange::book(const std::string& instrument) {
 
 int Exchange::cancel(long exchangeId) {
     OrderBook* book;
-    Order* order;
-
-    {
-        auto guard = lock();
-        order = allOrders.get(exchangeId);
-    }
-    if(!order) throw std::runtime_error("invalid exchange order id");
+    Order* order = allOrders.get(exchangeId);
+    if(!order) throw std::runtime_error("invalid exchange order id "+std::to_string(exchangeId));
     book = books.get(order->instrument);
-    if(!book) throw std::runtime_error("invalid exchange order id");
+    if(!book) throw std::runtime_error("missing book for order id"+std::to_string(exchangeId));
 
     auto bookGuard = book->lock();
     return book->cancelOrder(order);
@@ -55,10 +46,7 @@ long Exchange::insertOrder(std::string instrument,F price,int quantity,Side side
     auto bookGuard = book->lock();
     long id = nextID();
     Order *order = new (book->allocateOrder()) Order(orderId,book->instrument,price,quantity,side,id);
-    {
-        auto guard = lock();
-        allOrders.add(order);
-    }
+    allOrders.add(order);
 
     book->insertOrder(order);
     return id;

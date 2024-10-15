@@ -1,28 +1,33 @@
 #pragma once
 
 #include "order.h"
+#include <thread>
 #include <vector>
 #include <array>
 
 /**
- * @brief maintains map of Orders. since the exchange ID is a sequential long starting at 0 this is trivial.
- * @todo if the ID were changed to arbitrary alphanumeric, change this to an closed address hash table.
+ * @brief lock-free map of external order ID -> Order
  */
 class OrderMap {
-    std::vector<std::array<Order*,1000>> blocks;
+    static const int TABLE_SIZE = 1000000;
+    std::atomic<Order*> table[TABLE_SIZE];
 public:
     void add(Order *order){
-        long id = order->exchangeId;
-        int block = id / 1000;
-        if(block>=blocks.size()) {
-            blocks.push_back(std::array<Order*,1000>());
+        int bucket = order->exchangeId % TABLE_SIZE;
+        Order* expected = table[bucket].load();
+        order->next = expected;
+        while(!table[bucket].compare_exchange_weak(expected,order)) {
+            expected = table[bucket].load();
+            order->next = expected;
         }
-        int index = id % 1000;
-        blocks[block][index] = order;
     }
     Order* get(long exchangeId) {
-        int block = exchangeId / 1000;
-        if(block>=blocks.size()) return nullptr;
-        return blocks[block][exchangeId % 1000];
+        int bucket = exchangeId % TABLE_SIZE;
+        Order *order = table[bucket].load();
+        while(order!=nullptr) {
+            if(order->exchangeId==exchangeId) return order;
+            order = order->next;
+        }
+        return nullptr;
     }
 };
