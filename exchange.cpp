@@ -1,48 +1,36 @@
 #include "exchange.h"
 #include "orderbook.h"
+#include <mutex>
 #include <stdexcept>
 
 #define LOCK_EXCHANGE() std::lock_guard<std::mutex> lock(mu)
+#define UNLOCK_EXCHANGE() lock.
 
 static ExchangeListener dummy;
 
-Exchange::Exchange(ExchangeListener& listener) : listener(listener) {}
+Exchange::Exchange(ExchangeListener& listener) : listener(listener), allOrders(1000000) {}
 Exchange::Exchange() : listener(dummy) {}
-
-struct MyOrderBookListener : OrderBookListener {
-    ExchangeListener& el;
-    MyOrderBookListener(ExchangeListener& el) : el(el){}
-    void onOrder(const Order& order) override {
-        el.onOrder(order);
-    }
-    void onTrade(const Trade& trade) override {
-        el.onTrade(trade);
-    }
-};
 
 const Order Exchange::getOrder(long exchangeId) {
     OrderBook* book;
     Order* order;
 
     {
-        LOCK_EXCHANGE();
-
+        auto guard = lock();
         order = allOrders[exchangeId];
-        if(!order) throw std::runtime_error("invalid exchange order id");
-        book = books[order->instrument];
-        assert(book!=nullptr);
     }
-
+    if(!order) throw std::runtime_error("invalid exchange order id");
+    book = books.get(order->instrument);
+    if(!book) throw std::runtime_error("invalid exchange order id");
+    auto bookGuard = book->lock();
     return book->getOrder(order);
 }
 
-const Book Exchange::book(std::string instrument) {
+const Book Exchange::book(const std::string& instrument) {
     OrderBook* book;
-    {
-        LOCK_EXCHANGE();
-        book = books[instrument];
-    }
 
+    book = books.getOrCreate(instrument,*this);
+    auto bookGuard = book->lock();
     return book->book();
 }
 
@@ -51,33 +39,32 @@ int Exchange::cancel(long exchangeId) {
     Order* order;
 
     {
-        LOCK_EXCHANGE();
-
+        auto guard = lock();
         order = allOrders[exchangeId];
-        if(!order) throw std::runtime_error("invalid exchange order id");
-        book = books[order->instrument];
-        assert(book!=nullptr);
     }
+    if(!order) throw std::runtime_error("invalid exchange order id");
+    book = books.get(order->instrument);
+    if(!book) throw std::runtime_error("invalid exchange order id");
 
+    auto bookGuard = book->lock();
     return book->cancelOrder(order);
 }
 
 long Exchange::insertOrder(std::string instrument,F price,int quantity,Side side,std::string orderId) {
     long id;
-    OrderBook *book;
+
+    OrderBook *book = books.getOrCreate(instrument,*this);
     Order *order;
-    {
-        LOCK_EXCHANGE();
-        id = nextID();
-        book = books[instrument];
-        if(!book) {
-            auto obl = new MyOrderBookListener(listener);
-            book = new OrderBook(*obl);
-            books[instrument] = book;
-        }
-        order = new Order(orderId,instrument,price,quantity,side,id);
-        allOrders[id]=order;
-    }
+
+    auto bookGuard = 
+        [&] {
+            auto guard = lock();
+            id = nextID();
+            order = new (allocateOrder()) Order(orderId,book->instrument,price,quantity,side,id);
+            allOrders.insert({id,order});
+            return book->lock();
+        } ();
+
     book->insertOrder(order);
     return id;
 }

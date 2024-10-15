@@ -6,7 +6,7 @@
 
 BOOST_AUTO_TEST_CASE( orderbook_cancel ) {
     OrderBookListener listener;
-    OrderBook ob(listener);
+    OrderBook ob(dummy_instrument,listener);
 
     auto o1 = new TestOrder(1,100,10,BUY);
     ob.insertOrder(o1);
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE( orderbook_cancel ) {
 
 BOOST_AUTO_TEST_CASE( booklevels ) {
     OrderBookListener listener;
-    OrderBook ob(listener);
+    OrderBook ob(dummy_instrument,listener);
 
     auto o1 = new TestOrder(1,100,10,BUY);
     ob.insertOrder(o1);
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE( booklevels ) {
 
 BOOST_AUTO_TEST_CASE( booklevels_sum ) {
     OrderBookListener listener;
-    OrderBook ob(listener);
+    OrderBook ob(dummy_instrument,listener);
 
     auto o1 = new TestOrder(1,100,10,BUY);
     ob.insertOrder(o1);
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( booklevels_sum ) {
 
 BOOST_AUTO_TEST_CASE( booklevels_multiple ) {
     OrderBookListener listener;
-    OrderBook ob(listener);
+    OrderBook ob(dummy_instrument,listener);
 
     auto o1 = new TestOrder(1,100,10,BUY);
     ob.insertOrder(o1);
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( booklevels_multiple ) {
 
 BOOST_AUTO_TEST_CASE( booklevels_order ) {
     OrderBookListener listener;
-    OrderBook ob(listener);
+    OrderBook ob(dummy_instrument,listener);
 
     ob.insertOrder(new TestOrder(1,100,10,BUY));
     ob.insertOrder(new TestOrder(1,101,10,BUY));

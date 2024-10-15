@@ -3,7 +3,10 @@
 #include <string>
 #include <unordered_map>
 
+#include "order.h"
 #include "orderbook.h"
+#include "books.h"
+#include "spinlock.h"
 
 struct ExchangeListener {
     /** callback when order properties change */
@@ -12,7 +15,7 @@ struct ExchangeListener {
     virtual void onTrade(const Trade& trade){};
 };
 
-class Exchange {
+class Exchange : OrderBookListener {
 public:
     Exchange();
     Exchange(ExchangeListener& listener);
@@ -29,15 +32,38 @@ public:
         return sell(instrument,-DBL_MAX,quantity,orderId);
     }
     int cancel(long exchangeId);
-    const Book book(std::string instrument);
+    const Book book(const std::string& instrument);
     const Order getOrder(long exchangeId);
-protected:
-    OrderBook* orderBook(std::string symbol) { return books[symbol]; }
+    void onOrder(const Order& order) override {
+        listener.onOrder(order);
+    }
+    void onTrade(const Trade& trade) override {
+        listener.onTrade(trade);
+    }
+    Guard lock() {
+        return mu.lock();
+    }
 private:
-    std::unordered_map<std::string,OrderBook*> books;
-    std::map<long,Order*> allOrders;
-    std::mutex mu;
+    Books books;
+    std::unordered_map<long,Order*> allOrders;
+    SpinLock mu;
     long nextID();
     long insertOrder(std::string instrument,F price,int quantity,Side side,std::string orderId);
     ExchangeListener& listener;
+    static const int BLOCK_LEN = 65536;
+    static const int ORDER_LEN = sizeof(Order);
+    uint8_t * currentBlock = (uint8_t*)malloc(BLOCK_LEN);
+    int blockUsed = 0;
+    void * allocateOrder() {
+        /** since all orders have a reference maintained to them, use an efficient bump allocator.
+            This currently leaks even if the Exchange instance is destroyed. TODO track allocated
+            blocks on a list to free in destructor. */
+        if(BLOCK_LEN-blockUsed < ORDER_LEN) {
+            currentBlock = (uint8_t*)malloc(BLOCK_LEN);
+            blockUsed=0;
+        }
+        void * ptr = currentBlock + blockUsed;
+        blockUsed+=ORDER_LEN;
+        return ptr;
+    }
 };

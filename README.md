@@ -26,7 +26,7 @@ Cancel orders at 4M per second.
 
 It could probably bit a faster, but the design biases towards readability and safety.
 
-See `performance_test.cpp` for the performance tests.
+See `benchmark_test.cpp` and `benchmark_multithread_test.cpp` for the performance tests.
 
 ## Next Steps
 

@@ -1,0 +1,52 @@
+#include <stdexcept>
+#include <cstddef>
+#include <atomic>
+
+#include "orderbook.h"
+
+#define MAX_INSTRUMENTS 1024
+
+/** Book is a lock-free map of instrument -> OrderBook */
+class Books {
+    std::atomic<OrderBook*> table[MAX_INSTRUMENTS];
+public:
+    Books() {
+        memset(table,0,sizeof(table));
+    }
+    OrderBook* getOrCreate(const std::string instrument,OrderBookListener &listener) {
+        auto hash = std::hash<std::string>{}(instrument);
+        const auto start = hash%MAX_INSTRUMENTS;
+        auto book = table[start].load();
+        if(book!=nullptr && book->instrument==instrument) return book;
+        auto new_book = new OrderBook(instrument,listener);
+        auto index = start;
+        while(true) {
+            if(book!=nullptr) {
+                index = (++index) % MAX_INSTRUMENTS;
+                if(index==start) throw new std::runtime_error("no room in books map");
+                book = table[index].load();
+                if(book!=nullptr && book->instrument==instrument) return book;
+            }
+            if(book==nullptr) {
+                OrderBook* tmp = nullptr;
+                if(table[index].compare_exchange_strong(tmp,new_book)) return new_book;
+                if(tmp->instrument==instrument) {
+                    free(new_book);
+                    return tmp;
+                }
+            }
+        }
+    };
+    OrderBook* get(const std::string &instrument) {
+        auto hash = std::hash<std::string>{}(instrument);
+        const auto start = hash%MAX_INSTRUMENTS;
+        auto index = start;
+        while(true) {
+            auto book = table[index].load();
+            if(book==nullptr) return nullptr;
+            if(book->instrument==instrument) return book;
+            index = (++index) % MAX_INSTRUMENTS;
+            if(index==start) return nullptr;
+        }
+    }
+};

@@ -48,7 +48,7 @@ protected:
     Order(const std::string &orderId,const std::string &instrument,F price,int quantity,Side side,long exchangeId) : timeSubmitted(epoch()), remaining(quantity), orderId(orderId), instrument(instrument), exchangeId(exchangeId) , price(price), quantity(quantity), side(side) {}
 public:
     const std::string orderId;
-    const std::string instrument; 
+    const std::string &instrument; 
     const long exchangeId;
     const F price;
     const int quantity;

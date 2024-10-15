@@ -4,6 +4,8 @@
 #include <iostream>
 #include <random>
 #include <stdexcept>
+#include <thread>
+#include <array>
 
 #include "exchange.h"
 #include "orderbook.h"
@@ -18,7 +20,7 @@ struct TestListener : OrderBookListener {
 
 void insertOrders() {
     TestListener listener;
-    OrderBook ob(listener);
+    OrderBook ob(dummy_instrument,listener);
 
     static const int N_ORDERS = 5000000;
 
@@ -39,7 +41,7 @@ void insertOrders() {
 void insertOrdersWithTrades() {
 
     TestListener listener;
-    OrderBook ob(listener);
+    OrderBook ob(dummy_instrument,listener);
 
     static const int N_ORDERS = 5000000;
 
@@ -60,7 +62,7 @@ void insertOrdersWithTrades() {
 /** tests the time to remove an order at a random position in the OrderBook */
 void cancelOrders() {
     OrderBookListener listener;
-    OrderBook ob(listener);
+    OrderBook ob(dummy_instrument,listener);
 
     static const int N_ORDERS = 1000000;
 

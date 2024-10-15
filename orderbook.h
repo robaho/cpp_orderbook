@@ -12,6 +12,7 @@
 #include "order.h"
 #include "orderlist.h"
 #include "fixed.h"
+#include "spinlock.h"
 
 struct price_compare {
     explicit price_compare(bool ascending) : ascending(ascending) {}
@@ -68,8 +69,8 @@ typedef void (*TradeReceiver)(Trade);
 
 class OrderBookListener {
 public:
-    virtual void onOrder(const Order& order){}
-    virtual void onTrade(const Trade& trade){}
+    virtual void onOrder(const Order& order) {}
+    virtual void onTrade(const Trade& trade) {}
 };
 
 struct BookLevel {
@@ -87,17 +88,22 @@ struct Book {
 
 class Exchange;
 
+/** OrderBook instances are single threaded and must be externally synchronized using mu or lock() */
 class OrderBook {
 private:
-    std::mutex mu;
+    SpinLock mu;
     PriceLevels bids = PriceLevels(false);    
     PriceLevels asks = PriceLevels(true);
     OrderBookListener& listener;
     void matchOrders(Side aggressorSide);
 public:
-    OrderBook(OrderBookListener& listener) : listener(listener){}
+    const std::string instrument;
+    OrderBook(const std::string &instrument,OrderBookListener& listener) : listener(listener), instrument(instrument){}
     void insertOrder(Order* order);
     int cancelOrder(Order *order);
     const Book book();
     const Order getOrder(Order *order);
+    Guard lock() {
+        return mu.lock();
+    }
 };

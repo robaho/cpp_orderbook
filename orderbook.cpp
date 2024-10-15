@@ -4,10 +4,9 @@
 #include <mutex>
 #include <sys/param.h>
 
-#define LOCK_BOOK() std::lock_guard<std::mutex> lock(mu)
+#define LOCK_BOOK() std::lock_guard<std::recursive_mutex> lock(mu)
 
 void OrderBook::insertOrder(Order *order) {
-    LOCK_BOOK();
     auto list = order->side == BUY ? &bids : &asks;
     list->insertOrder(order);
     listener.onOrder(*order);
@@ -29,7 +28,7 @@ void OrderBook::matchOrders(Side aggressorSide) {
             bid->fill(qty);
             ask->fill(qty);
 
-            Trade trade(price,qty,*aggressor,*opposite);
+            const Trade trade(price,qty,*aggressor,*opposite);
 
             if(bid->remaining==0) {
                 bids.removeOrder(bid);
@@ -58,7 +57,6 @@ void OrderBook::matchOrders(Side aggressorSide) {
 }
 
 int OrderBook::cancelOrder(Order *order) {
-    LOCK_BOOK();
     if(order->remaining>0) {
         order->cancel();
         auto orders = order->side == BUY ? &bids : &asks;
@@ -71,7 +69,6 @@ int OrderBook::cancelOrder(Order *order) {
 }
 
 const Book OrderBook::book() {
-    LOCK_BOOK();
     Book book;
     auto snap = [](const PriceLevels& src,std::vector<BookLevel> &dst, std::vector<long> &oids) {
         for(auto level=src.levels.begin();level!=src.levels.end();level++) {
@@ -92,6 +89,5 @@ const Book OrderBook::book() {
 }
 
 const Order OrderBook::getOrder(Order* order) {
-    LOCK_BOOK();
     return *order;
 }
