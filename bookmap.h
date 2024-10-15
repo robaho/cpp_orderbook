@@ -1,3 +1,5 @@
+#pragma once 
+
 #include <stdexcept>
 #include <cstddef>
 #include <atomic>
@@ -7,13 +9,13 @@
 #define MAX_INSTRUMENTS 1024
 
 /** Book is a lock-free map of instrument -> OrderBook */
-class Books {
+class BookMap {
     std::atomic<OrderBook*> table[MAX_INSTRUMENTS];
 public:
-    Books() {
+    BookMap() {
         memset(table,0,sizeof(table));
     }
-    OrderBook* getOrCreate(const std::string instrument,OrderBookListener &listener) {
+    OrderBook* getOrCreate(const std::string &instrument,OrderBookListener &listener) {
         auto hash = std::hash<std::string>{}(instrument);
         const auto start = hash%MAX_INSTRUMENTS;
         auto book = table[start].load();

@@ -5,8 +5,9 @@
 
 #include "order.h"
 #include "orderbook.h"
-#include "books.h"
+#include "bookmap.h"
 #include "spinlock.h"
+#include "ordermap.h"
 
 struct ExchangeListener {
     /** callback when order properties change */
@@ -44,26 +45,10 @@ public:
         return mu.lock();
     }
 private:
-    Books books;
-    std::unordered_map<long,Order*> allOrders;
+    BookMap books;
+    OrderMap allOrders;
     SpinLock mu;
     long nextID();
     long insertOrder(std::string instrument,F price,int quantity,Side side,std::string orderId);
     ExchangeListener& listener;
-    static const int BLOCK_LEN = 65536;
-    static const int ORDER_LEN = sizeof(Order);
-    uint8_t * currentBlock = (uint8_t*)malloc(BLOCK_LEN);
-    int blockUsed = 0;
-    void * allocateOrder() {
-        /** since all orders have a reference maintained to them, use an efficient bump allocator.
-            This currently leaks even if the Exchange instance is destroyed. TODO track allocated
-            blocks on a list to free in destructor. */
-        if(BLOCK_LEN-blockUsed < ORDER_LEN) {
-            currentBlock = (uint8_t*)malloc(BLOCK_LEN);
-            blockUsed=0;
-        }
-        void * ptr = currentBlock + blockUsed;
-        blockUsed+=ORDER_LEN;
-        return ptr;
-    }
 };

@@ -1,5 +1,5 @@
 #include "orderbook.h"
-#define BOOST_TEST_MODULE exchange
+#define BOOST_TEST_MODULE bookmap
 #include <boost/test/included/unit_test.hpp>
 
 #include "test.h"
@@ -7,7 +7,7 @@
 static OrderBookListener listener;
 
 BOOST_AUTO_TEST_CASE( books_basic ) {
-    Books books;
+    BookMap books;
 
     auto book = books.get("dummy");
 

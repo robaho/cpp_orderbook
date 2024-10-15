@@ -4,6 +4,7 @@
 #include <iostream>
 #include <random>
 #include <stdexcept>
+#include <string>
 #include <thread>
 #include <array>
 
@@ -19,10 +20,12 @@ struct TestListener : OrderBookListener {
 };
 
 void insertOrdersWithTrades() {
-    static std::array<std::string,4> instruments{ "i1","i2","i3","i4" };
+    static const int N_THREADS=std::thread::hardware_concurrency();
+    static std::array<std::string,16> instruments;
 
-    static const int N_THREADS=4;
-    static const int N_ORDERS = 5000000;
+    for(int i=0;i<N_THREADS;i++) instruments[i] = "i"+std::to_string(i+1);
+
+    static const int N_ORDERS = 2000000;
     static const int TOTAL_ORDERS = N_ORDERS * 2 * N_THREADS;
 
     struct MyExchangeListener : public ExchangeListener {
@@ -54,7 +57,7 @@ void insertOrdersWithTrades() {
     auto end = std::chrono::system_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
     std::cout << "multithread, insert orders with trades, usec per order " << (duration.count()/(double)(TOTAL_ORDERS)) << ", orders per sec " << (int)(((TOTAL_ORDERS)/(duration.count()/1000000.0))) << "\n";
-    std::cout << "multithread, insert orders with trades, " << listener.tradeCount << " trades\n";
+    std::cout << "multithread, insert orders with trades % " << (listener.tradeCount*100/TOTAL_ORDERS) << "\n";
 }
 
 

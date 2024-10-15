@@ -8,7 +8,7 @@
 
 static ExchangeListener dummy;
 
-Exchange::Exchange(ExchangeListener& listener) : listener(listener), allOrders(1000000) {}
+Exchange::Exchange(ExchangeListener& listener) : listener(listener) {}
 Exchange::Exchange() : listener(dummy) {}
 
 const Order Exchange::getOrder(long exchangeId) {
@@ -17,7 +17,7 @@ const Order Exchange::getOrder(long exchangeId) {
 
     {
         auto guard = lock();
-        order = allOrders[exchangeId];
+        order = allOrders.get(exchangeId);
     }
     if(!order) throw std::runtime_error("invalid exchange order id");
     book = books.get(order->instrument);
@@ -40,7 +40,7 @@ int Exchange::cancel(long exchangeId) {
 
     {
         auto guard = lock();
-        order = allOrders[exchangeId];
+        order = allOrders.get(exchangeId);
     }
     if(!order) throw std::runtime_error("invalid exchange order id");
     book = books.get(order->instrument);
@@ -51,19 +51,14 @@ int Exchange::cancel(long exchangeId) {
 }
 
 long Exchange::insertOrder(std::string instrument,F price,int quantity,Side side,std::string orderId) {
-    long id;
-
     OrderBook *book = books.getOrCreate(instrument,*this);
-    Order *order;
-
-    auto bookGuard = 
-        [&] {
-            auto guard = lock();
-            id = nextID();
-            order = new (allocateOrder()) Order(orderId,book->instrument,price,quantity,side,id);
-            allOrders.insert({id,order});
-            return book->lock();
-        } ();
+    auto bookGuard = book->lock();
+    long id = nextID();
+    Order *order = new (book->allocateOrder()) Order(orderId,book->instrument,price,quantity,side,id);
+    {
+        auto guard = lock();
+        allOrders.add(order);
+    }
 
     book->insertOrder(order);
     return id;
@@ -78,6 +73,6 @@ long Exchange::sell(std::string instrument,F price,int quantity,std::string orde
 }
 
 long Exchange::nextID() {
-    static long id = 0;
+    static std::atomic<long> id = 0;
     return ++id;
 }

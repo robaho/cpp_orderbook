@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <chrono>
 #include <emmintrin.h>
 #include <thread>
 #include <immintrin.h>
@@ -10,36 +11,38 @@ class Guard {
 friend class SpinLock;
 public:
     ~Guard() {
-        mutex.store(false);
+        mutex.clear();
+        mutex.notify_one();
         // std::cout << "unlocked by guard\n";
     }
 private:
-    Guard(std::atomic<bool> &mutex) : mutex(mutex) {}
-    std::atomic<bool> &mutex;        
+    Guard(std::atomic_flag &mutex) : mutex(mutex) {}
+    std::atomic_flag &mutex;        
 };
 
 class SpinLock {
 private:
-    std::atomic<bool> mutex;
+    std::atomic_flag mutex;
 public:
     Guard lock() {
         while(true) {
-            bool unlocked = false;
-            if(mutex.compare_exchange_strong(unlocked,true)) {
+            while(mutex.test(std::memory_order_acquire)) _mm_pause();
+            if(!mutex.test_and_set(std::memory_order_acquire)) {
                 return Guard(mutex);
+            } else {
+                mutex.wait(true);
+                // std::this_thread::yield();
             }
-            while(mutex.load()) _mm_pause();
-            // while(mutex.load()) std::this_thread::yield();
         }
     }
     bool try_lock() {
-        bool unlocked = false;
-        return mutex.compare_exchange_strong(unlocked,true);
+        return mutex.test_and_set()==false;
     }
     void unlock() {
-        mutex.store(false);
+        mutex.clear();
+        mutex.notify_one();
     }
     bool is_locked() {
-        return mutex.load();
+        return mutex.test();
     }
 };

@@ -12,17 +12,21 @@ Remove `fixed.h` , and run `make all` to obtain the latest version of the fixed 
 
 ## Usage
 
-See `exchange.h` for the public api.
+See `exchange.h` for the public api. `orderbook.h` is the internal single threaded order book management.
 
 ## Performance
 
-Running OSX on a single 4.0 ghz Intel processor:
+Running OSX on a 8-core 4.0 ghz Intel processor:
 
 ```
 Insert orders at 5M per second.
 Insert orders with 30% trade match, 4M per second.
 Cancel orders at 4M per second.
 ```
+
+The multithread test does not achieve linear speed-up - only about 7.5M orders per second (with 31% trade match) on the same machine. The reason being that since order submission and match is so efficient (only about 200 nano)
+the contention on the shared global OrderMap instance costs more than the operation itself. If the submission was more realistic (persistence, network market data, etc) then
+the parallelization would be more effective. The SpinLock implementation is super basic and changing OrderMap to be lock free would be better.
 
 It could probably bit a faster, but the design biases towards readability and safety.
 
