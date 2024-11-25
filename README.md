@@ -16,7 +16,7 @@ See `exchange.h` for the public api. `orderbook.h` is the internal single thread
 
 ## Performance
 
-Running OSX on a 8-core 4.0 ghz Intel processor (only 4 real cores) with a single instrument.
+Running OSX on a 4 GHz Quad-Core Intel Core i7 with a single instrument.
 
 ```
 Insert orders at 5.5M per second.
