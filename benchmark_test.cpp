@@ -18,7 +18,7 @@ struct TestListener : OrderBookListener {
     }
 };
 
-void insertOrders(const bool withTrades) {
+void insertOrders(const bool withTrades,const int PRICE_LEVELS) {
 
     TestListener listener;
     OrderBook ob(dummy_instrument,listener);
@@ -29,19 +29,19 @@ void insertOrders(const bool withTrades) {
     auto start = std::chrono::system_clock::now();
 
     for(int i=0;i<N_ORDERS;i++) {
-        ob.insertOrder(new TestOrder(i,5000.0 + 1 * (i%1000),10,BUY));
+        ob.insertOrder(new TestOrder(i,5000.0 + 1 * (i%PRICE_LEVELS),10,BUY));
     }
     for(int i=0;i<N_ORDERS;i++) {
-        ob.insertOrder(new TestOrder(N_ORDERS+i,(withTrades ? 5000.0 : 10000.0) + 1 * (i%1000),10,SELL));
+        ob.insertOrder(new TestOrder(N_ORDERS+i,(withTrades ? 5000.0 : 10000.0) + 1 * (i%PRICE_LEVELS),10,SELL));
     }
     auto end = std::chrono::system_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    std::cout << "insert orders, usec per order " << (duration.count()/(double)(N_ORDERS*2)) << ", orders per sec " << (int)(((N_ORDERS*2)/(duration.count()/1000000.0))) << "\n";
-    std::cout << "insert orders with trade match % " << (listener.tradeCount*100/TOTAL_ORDERS) << "\n";
+    std::cout << "insert orders " << PRICE_LEVELS << " levels, usec per order " << (duration.count()/(double)(N_ORDERS*2)) << ", orders per sec " << (int)(((N_ORDERS*2)/(duration.count()/1000000.0))) << "\n";
+    std::cout << "insert orders " << PRICE_LEVELS << " levels with trade match % " << (listener.tradeCount*100/TOTAL_ORDERS) << "\n";
 }
 
 /** tests the time to remove an order at a random position in the OrderBook */
-void cancelOrders() {
+void cancelOrders(const int PRICE_LEVELS) {
     OrderBookListener listener;
     OrderBook ob(dummy_instrument,listener);
 
@@ -52,7 +52,7 @@ void cancelOrders() {
     Order* orders[N_ORDERS];
 
     for(int i=0;i<N_ORDERS;i++) {
-        auto order = new TestOrder(i,100.0 + 1 * (i%1000),10,BUY);
+        auto order = new TestOrder(i,100.0 + 1 * (i%PRICE_LEVELS),10,BUY);
         ob.insertOrder(order);
         orders[i]=order;
     }
@@ -69,12 +69,15 @@ void cancelOrders() {
     auto end = std::chrono::system_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
 
-    std::cout << "cancel orders, usec per order " << (duration.count()/(double)(N_ORDERS)) << ", orders per sec " << (int)(((N_ORDERS)/(duration.count()/1000000.0))) << "\n";
+    std::cout << "cancel orders "<<PRICE_LEVELS<<" levels, usec per order " << (duration.count()/(double)(N_ORDERS)) << ", orders per sec " << (int)(((N_ORDERS)/(duration.count()/1000000.0))) << "\n";
 }
 
 int main(int argc,char **argv) {
     std::cout << "sizeof Fixed " << sizeof(F) << " number of cores " << std::thread::hardware_concurrency() << "\n";
-    insertOrders(false);
-    insertOrders(true);
-    cancelOrders();
+    insertOrders(false,1000);
+    insertOrders(true,1000);
+    cancelOrders(1000);
+    insertOrders(false,10);
+    insertOrders(true,10);
+    cancelOrders(10);
 }
