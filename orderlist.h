@@ -61,6 +61,6 @@ public:
     Order* front() {
         return head==nullptr ? nullptr : head->order;
     }
-    Iterator begin() { return Iterator(head); }
-    Iterator end()   { return Iterator(nullptr); }
+    Iterator begin() const { return Iterator(head); }
+    Iterator end()   const { return Iterator(nullptr); }
 };
