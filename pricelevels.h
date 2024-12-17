@@ -60,7 +60,7 @@ public:
     void insertOrder(Order *order) {
         auto itr = std::lower_bound(levels.begin(),levels.end(),order->price, cmpFn);
         OrderList *list;
-        if(itr==levels.end() || (*itr)->price!=order->price) {
+        if(itr==levels.end() || (*itr)->price()!=order->price) {
             list = new OrderList(order->price);
             levels.insert(itr,list);
         } else list = *itr;

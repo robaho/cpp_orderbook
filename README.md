@@ -23,86 +23,86 @@ The PriceLevels implementation can be chosen by modifying the [typedef xxxxx Pri
 
 <pre>
 
-Using dequeue (main branch):
+Using dequeue:
 
-insert orders 1000 levels, usec per order 0.213368, orders per sec 4686734
+insert orders 1000 levels, usec per order 0.171672, orders per sec 5825061
 insert orders 1000 levels with trade match % 0
-insert orders 1000 levels, usec per order 0.289039, orders per sec 3459745
+insert orders 1000 levels, usec per order 0.231113, orders per sec 4326883
 insert orders 1000 levels with trade match % 31
-cancel orders 1000 levels, usec per order 0.243564, orders per sec 4105697
-insert orders 10 levels, usec per order 0.175881, orders per sec 5685652
+cancel orders 1000 levels, usec per order 0.231527, orders per sec 4319150
+insert orders 10 levels, usec per order 0.125911, orders per sec 7942117
 insert orders 10 levels with trade match % 0
-insert orders 10 levels, usec per order 0.248569, orders per sec 4023026
+insert orders 10 levels, usec per order 0.187032, orders per sec 5346690
 insert orders 10 levels with trade match % 33
-cancel orders 10 levels, usec per order 0.159411, orders per sec 6273092
+cancel orders 10 levels, usec per order 0.157627, orders per sec 6344090
 
 Using vector:
 
-insert orders 1000 levels, usec per order 0.194676, orders per sec 5136753
+insert orders 1000 levels, usec per order 0.14516, orders per sec 6888964
 insert orders 1000 levels with trade match % 0
-insert orders 1000 levels, usec per order 0.281497, orders per sec 3552436
+insert orders 1000 levels, usec per order 0.219419, orders per sec 4557484
 insert orders 1000 levels with trade match % 31
-cancel orders 1000 levels, usec per order 0.209419, orders per sec 4775115
-insert orders 10 levels, usec per order 0.151772, orders per sec 6588830
+cancel orders 1000 levels, usec per order 0.185811, orders per sec 5381812
+insert orders 10 levels, usec per order 0.114813, orders per sec 8709837
 insert orders 10 levels with trade match % 0
-insert orders 10 levels, usec per order 0.199023, orders per sec 5024542
+insert orders 10 levels, usec per order 0.163958, orders per sec 6099119
 insert orders 10 levels with trade match % 33
-cancel orders 10 levels, usec per order 0.128149, orders per sec 7803416
+cancel orders 10 levels, usec per order 0.121652, orders per sec 8220169
 
 Using vector with structs:
 
-insert orders 1000 levels, usec per order 0.180841, orders per sec 5529731
+insert orders 1000 levels, usec per order 0.154717, orders per sec 6463397
 insert orders 1000 levels with trade match % 0
-insert orders 1000 levels, usec per order 0.403036, orders per sec 2481170
+insert orders 1000 levels, usec per order 0.381428, orders per sec 2621729
 insert orders 1000 levels with trade match % 31
-cancel orders 1000 levels, usec per order 0.178959, orders per sec 5587872
-insert orders 10 levels, usec per order 0.142271, orders per sec 7028819
+cancel orders 1000 levels, usec per order 0.189634, orders per sec 5273315
+insert orders 10 levels, usec per order 0.118384, orders per sec 8447073
 insert orders 10 levels with trade match % 0
-insert orders 10 levels, usec per order 0.170982, orders per sec 5848572
+insert orders 10 levels, usec per order 0.151584, orders per sec 6597011
 insert orders 10 levels with trade match % 33
-cancel orders 10 levels, usec per order 0.116662, orders per sec 8571771
+cancel orders 10 levels, usec per order 0.126755, orders per sec 7889235
 
 Using map:
 
-insert orders 1000 levels, usec per order 0.194018, orders per sec 5154174
+insert orders 1000 levels, usec per order 0.148093, orders per sec 6752518
 insert orders 1000 levels with trade match % 0
-insert orders 1000 levels, usec per order 0.356886, orders per sec 2802014
+insert orders 1000 levels, usec per order 0.262041, orders per sec 3816202
 insert orders 1000 levels with trade match % 31
-cancel orders 1000 levels, usec per order 0.231138, orders per sec 4326419
-insert orders 10 levels, usec per order 0.159661, orders per sec 6263258
+cancel orders 1000 levels, usec per order 0.207532, orders per sec 4818534
+insert orders 10 levels, usec per order 0.117244, orders per sec 8529235
 insert orders 10 levels with trade match % 0
-insert orders 10 levels, usec per order 0.26134, orders per sec 3826435
+insert orders 10 levels, usec per order 0.195957, orders per sec 5103173
 insert orders 10 levels with trade match % 33
-cancel orders 10 levels, usec per order 0.122617, orders per sec 8155475
+cancel orders 10 levels, usec per order 0.123975, orders per sec 806614
 
 Using map with structs:
 
-insert orders 1000 levels, usec per order 0.205884, orders per sec 4857101
+insert orders 1000 levels, usec per order 0.145034, orders per sec 6894920
 insert orders 1000 levels with trade match % 0
-insert orders 1000 levels, usec per order 0.315915, orders per sec 3165408
+insert orders 1000 levels, usec per order 0.226345, orders per sec 4418032
 insert orders 1000 levels with trade match % 31
-cancel orders 1000 levels, usec per order 0.253659, orders per sec 3942300
-insert orders 10 levels, usec per order 0.16376, orders per sec 6106486
+cancel orders 1000 levels, usec per order 0.202022, orders per sec 4949955
+insert orders 10 levels, usec per order 0.117999, orders per sec 8474676
 insert orders 10 levels with trade match % 0
-insert orders 10 levels, usec per order 0.212822, orders per sec 4698753
+insert orders 10 levels, usec per order 0.173564, orders per sec 5761556
 insert orders 10 levels with trade match % 33
-cancel orders 10 levels, usec per order 0.118317, orders per sec 845187
+cancel orders 10 levels, usec per order 0.123793, orders per sec 8078001
 </pre>
 </details>
 
 Running OSX on a 4 GHz Quad-Core Intel Core i7 with a single instrument.
 
 ```
-Insert orders at 5.5M - 7M per second
-Insert orders with 30% trade match, 4M - 6M per second
+Insert orders at 5.5M - 8.5M per second
+Insert orders with 30% trade match, 4M - 6.5M per second
 Cancel orders at 4M - 8.5M per second
 ```
 
 Running same hardware with an instrument per core:
 ```
-Insert orders at less than 40 nanoseconds per insert, more than 22M orders per second.
-Insert orders with 31% trade match at less than 50 nanoseconds per insert/match.
-Cancel orders at less than 30 nanoseconds per cancel.
+Insert orders at less than 50 nanoseconds per insert, more than 22M orders per second.
+Insert orders with 31% trade match at less than 65 nanoseconds per insert/match.
+Cancel orders at less than 70 nanoseconds per cancel.
 ```
 
 The test is fully cpu bound, and achieves a near 100% speedup per core. This is made possible using a few highly efficient lock-free structures.
