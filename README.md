@@ -99,7 +99,7 @@ Cancel orders at 4M - 8.5M per second
 
 Running same hardware with an instrument per core:
 ```
-Insert orders at less than 40 nanoseconds per insert.
+Insert orders at less than 40 nanoseconds per insert, more than 22M orders per second.
 Insert orders with 31% trade match at less than 50 nanoseconds per insert/match.
 Cancel orders at less than 30 nanoseconds per cancel.
 ```
