@@ -19,7 +19,10 @@ See `exchange.h` for the public api. `orderbook.h` is the internal single thread
 <details>
     <summary> view performance details </summary>
 <pre>
-Using dequeue:
+
+These are available under different branches in the repo.
+
+Using dequeue (main branch):
 
 insert orders 1000 levels, usec per order 0.213368, orders per sec 4686734
 insert orders 1000 levels with trade match % 0
