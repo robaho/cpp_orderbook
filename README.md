@@ -108,7 +108,7 @@ The test is fully cpu bound, and achieves a near 100% speedup per core. This is 
 
 This later revisions of this project were born out of a job rejection. An order book is a fairly common "task" when interviewing in fintech as it is so pervasive. I was lucky enough to have feedback through a secondary source that listed items like "used string", and used dynamic memory.
 
-If you review the performance details it's pretty clear that the optimal data structure is dependent upon the histogram of the operations performed and the size of the order book. If you're implementing an exchange, you need to account for every price level, if you're a buy side firm, normally 10 levels on either side is sufficient to implement most strategies.
+If you review the performance details it's pretty clear that the optimal data structure is dependent upon the histogram of the operations performed and the size of the order book. If you're implementing an exchange, you need to account for every price level, if you're a buy side firm, normally 10 levels on either side is sufficient to implement most strategies. For example, using a vector with pointers is best when matching, but a vector with structs is best for the cancel operations. So the operation biasing requirements control which implementation is optimal.
 
 This particular firm provided no guidelines on these parameters, and the test data was blind, and then rejected the solution as inefficient without any in-person discussion of the design, constraints, etc. Imo it's a classic blunder in hiring - when the interviewer only accepts/understands the solution they expect. In fairness, it took several revisions of the code to be able to make these claims - but isn't that was optimizing engineering is?
 
