@@ -29,10 +29,10 @@ void insertOrders(const bool withTrades,const int PRICE_LEVELS) {
     auto start = std::chrono::system_clock::now();
 
     for(int i=0;i<N_ORDERS;i++) {
-        ob.insertOrder(new TestOrder(i,5000.0 + 1 * (i%PRICE_LEVELS),10,BUY));
+        ob.insertOrder(new (ob.allocateOrder()) TestOrder(i,5000.0 + 1 * (i%PRICE_LEVELS),10,BUY));
     }
     for(int i=0;i<N_ORDERS;i++) {
-        ob.insertOrder(new TestOrder(N_ORDERS+i,(withTrades ? 5000.0 : 10000.0) + 1 * (i%PRICE_LEVELS),10,SELL));
+        ob.insertOrder(new (ob.allocateOrder()) TestOrder(N_ORDERS+i,(withTrades ? 5000.0 : 10000.0) + 1 * (i%PRICE_LEVELS),10,SELL));
     }
     auto end = std::chrono::system_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
@@ -52,7 +52,7 @@ void cancelOrders(const int PRICE_LEVELS) {
     Order* orders[N_ORDERS];
 
     for(int i=0;i<N_ORDERS;i++) {
-        auto order = new TestOrder(i,100.0 + 1 * (i%PRICE_LEVELS),10,BUY);
+        auto order = new (ob.allocateOrder()) TestOrder(i,100.0 + 1 * (i%PRICE_LEVELS),10,BUY);
         ob.insertOrder(order);
         orders[i]=order;
     }
