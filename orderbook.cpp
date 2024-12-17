@@ -71,13 +71,13 @@ int OrderBook::cancelOrder(Order *order) {
 const Book OrderBook::book() {
     Book book;
     auto snap = [](const PriceLevels& src,std::vector<BookLevel> &dst, std::vector<long> &oids) {
-        int quantity(0);
         auto fn = [&](const OrderList *orders) {
+            int quantity(0);
             for(auto itr=orders->begin();itr!=orders->end();++itr) {
                 quantity = quantity + (*itr)->remainingQuantity();
                 oids.push_back((*itr)->exchangeId);
             }
-            dst.push_back(BookLevel(orders->price,quantity));
+            dst.push_back(BookLevel(orders->price(),quantity));
         };
         src.forEach(fn);
     };

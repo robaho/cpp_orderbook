@@ -10,9 +10,10 @@ friend class OrderBook;
 private:
     Node* head=nullptr;
     Node* tail=nullptr;
+    F _price;
 public:
-    const F price;
-    OrderList(F price) : price(price){}
+    OrderList(F price) : _price(price){}
+    const F& price() const { return _price; }
     struct Iterator 
     {
         friend class OrderList;
@@ -58,7 +59,7 @@ public:
             node->next->prev = node->prev;
         }
     }
-    Order* front() {
+    Order* front() const {
         return head==nullptr ? nullptr : head->order;
     }
     Iterator begin() const { return Iterator(head); }
