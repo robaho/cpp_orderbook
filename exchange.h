@@ -21,15 +21,15 @@ public:
     Exchange();
     Exchange(ExchangeListener& listener);
     /** submit limit buy order. returns exchange order id */
-    long buy(std::string instrument,F price,int quantity,std::string orderId);
+    long buy(const std::string& instrument,F price,int quantity,const std::string& orderId);
     /** submit market buy order. returns exchange order id. If the order cannot be filled, the rest is cancelled */
-    long marketBuy(std::string instrument,int quantity,std::string orderId) {
+    long marketBuy(const std::string& instrument,int quantity,const std::string& orderId) {
         return buy(instrument,DBL_MAX,quantity,orderId);
     }
     /** submit limit sell order. returns exchange order id */
-    long sell(std::string instrument,F price,int quantity,std::string orderId);
+    long sell(const std::string& instrument,F price,int quantity,const std::string& orderId);
     /** submit market sell order. returns exchange order id. If the order cannot be filled, the rest is cancelled */
-    long marketSell(std::string instrument,int quantity,std::string orderId) {
+    long marketSell(const std::string& instrument,int quantity,const std::string& orderId) {
         return sell(instrument,-DBL_MAX,quantity,orderId);
     }
     int cancel(long exchangeId);
@@ -49,6 +49,6 @@ private:
     OrderMap allOrders;
     SpinLock mu;
     long nextID();
-    long insertOrder(std::string instrument,F price,int quantity,Side side,std::string orderId);
+    long insertOrder(const std::string& instrument,F price,int quantity,Side side,const std::string& orderId);
     ExchangeListener& listener;
 };

@@ -41,7 +41,7 @@ int Exchange::cancel(long exchangeId) {
     return book->cancelOrder(order);
 }
 
-long Exchange::insertOrder(std::string instrument,F price,int quantity,Side side,std::string orderId) {
+long Exchange::insertOrder(const std::string& instrument,F price,int quantity,Side side,const std::string& orderId) {
     OrderBook *book = books.getOrCreate(instrument,*this);
     auto bookGuard = book->lock();
     long id = nextID();
@@ -52,11 +52,11 @@ long Exchange::insertOrder(std::string instrument,F price,int quantity,Side side
     return id;
 }
 
-long Exchange::buy(std::string instrument,F price,int quantity,std::string orderId) {
+long Exchange::buy(const std::string& instrument,F price,int quantity,const std::string& orderId) {
     return insertOrder(instrument,price,quantity,BUY,orderId);
 }
 
-long Exchange::sell(std::string instrument,F price,int quantity,std::string orderId) {
+long Exchange::sell(const std::string& instrument,F price,int quantity,const std::string& orderId) {
     return insertOrder(instrument,price,quantity,SELL,orderId);
 }
 

@@ -29,6 +29,18 @@ private:
     Order *order=nullptr;
 };
 
+struct OrderId {
+// used to avoid dynamic memory in std::string, even though SSO (small string optimization) usually avoids it
+private:
+    char buffer[64];
+public:
+    OrderId(const std::string& oid) {
+        auto len = oid.copy(buffer, 64);
+        buffer[len]=0;
+    }
+    operator const char *() const { return buffer; }
+};
+
 struct Order {
 friend class OrderBook;
 friend class OrderList;
@@ -43,15 +55,17 @@ private:
 
     int remaining;
     int filled=0;
+    OrderId _orderId;
     
     void fill(int quantity) { remaining -= quantity; filled += quantity; }
     void cancel() { remaining = 0; }
     bool isMarket() { return price == DBL_MAX || price == -DBL_MAX; } // could add "type" property, but not necessary for only limit and market orders
 protected:
     // protected to allow testcase
-    Order(const std::string &orderId,const std::string &instrument,F price,int quantity,Side side,long exchangeId) : timeSubmitted(epoch()), remaining(quantity), orderId(orderId), instrument(instrument), exchangeId(exchangeId) , price(price), quantity(quantity), side(side) {}
+    Order(const std::string &orderId,const std::string &instrument,F price,int quantity,Side side,long exchangeId) : timeSubmitted(epoch()), remaining(quantity),
+     _orderId(orderId), orderId(_orderId), instrument(instrument), exchangeId(exchangeId) , price(price), quantity(quantity), side(side) {}
 public:
-    const std::string orderId;
+    const char * const orderId;
     const std::string &instrument; 
     const long exchangeId;
     const F price;

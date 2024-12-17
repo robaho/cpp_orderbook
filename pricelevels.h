@@ -7,6 +7,8 @@
 #include "order.h"
 #include "orderlist.h"
 
+// The purpose of PriceLevels is to allow a compile time indirection to test implementation using different data structures
+
 struct price_compare {
     explicit price_compare(bool ascending) : ascending(ascending) {}
     template<class T, class U>
@@ -237,4 +239,5 @@ typedef StructPriceLevels<std::vector<OrderList>> VectorPriceLevels;
 typedef MapPriceLevels<std::map<F,OrderList,fixed_compare>> StdMapPriceLevels;
 typedef MapPtrPriceLevels<std::map<F,OrderList*,fixed_compare>> StdMapPtrPriceLevels;
 
+// define the PriceLevels implementation to use
 typedef VectorPriceLevels PriceLevels;
