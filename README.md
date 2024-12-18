@@ -18,7 +18,7 @@ See `exchange.h` for the public api. `orderbook.h` is the internal single thread
 
 <details>
     <summary> view performance details </summary>
-
+<br>
 The PriceLevels implementation can be chosen by modifying the [typedef xxxxx PriceLevels;](https://github.com/robaho/cpp_orderbook/blob/1b57f00fe031a09c28ab0df4dcacf1f6f29e48d7/pricelevels.h#L243) in `pricelevels.h` and rebuilding.
 
 <pre>
