@@ -12,7 +12,7 @@ Remove `fixed.h` , and run `make all` to obtain the latest version of the fixed 
 
 You need the [Boost Unit Testing Framework](https://www.boost.org/doc/libs/1_87_0/libs/test/doc/html/index.html) installed.
 
-It compiles using CLang, and requires minor modifications to the Makefile to use GCC. CLang seemed to generate higher performing code.
+It builds using `make` and by default with CLang. There is `Makefile.gcc` to use GCC instead.
 
 ## Usage
 

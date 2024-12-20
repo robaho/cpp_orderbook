@@ -1,0 +1,4 @@
+include Makefile
+
+CXX = gcc
+LDFLAGS = -lstdc++ -lboost_unit_test_framework 
