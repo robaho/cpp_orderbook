@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <map>
+#include <functional>
 #include "order.h"
 #include "orderlist.h"
 

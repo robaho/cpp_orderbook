@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string>
 #include <cmath>
+#include <cstring>
 
 constexpr int pow10(uint32_t exp)
 {
@@ -155,7 +156,7 @@ public:
         }
     }
     Fixed(double f) {
-        if(isnan(f)) {
+        if(std::isnan(f)) {
             fp = nan;
         } else {
             if(f >= MAX || f <= -MAX) {

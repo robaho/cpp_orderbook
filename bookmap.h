@@ -13,7 +13,7 @@ class BookMap {
     std::atomic<OrderBook*> table[MAX_INSTRUMENTS];
 public:
     BookMap() {
-        memset(table,0,sizeof(table));
+        for(int i=0;i<MAX_INSTRUMENTS;i++) table[i].store(nullptr);
     }
     OrderBook* getOrCreate(const std::string &instrument,OrderBookListener &listener) {
         auto hash = std::hash<std::string>{}(instrument);
@@ -24,7 +24,7 @@ public:
         auto index = start;
         while(true) {
             if(book!=nullptr) {
-                index = (++index) % MAX_INSTRUMENTS;
+                index = (index + 1) % MAX_INSTRUMENTS;
                 if(index==start) throw new std::runtime_error("no room in books map");
                 book = table[index].load();
                 if(book!=nullptr && book->instrument==instrument) return book;
@@ -33,7 +33,7 @@ public:
                 OrderBook* tmp = nullptr;
                 if(table[index].compare_exchange_strong(tmp,new_book)) return new_book;
                 if(tmp->instrument==instrument) {
-                    free(new_book);
+                    delete(new_book);
                     return tmp;
                 }
             }
@@ -47,7 +47,7 @@ public:
             auto book = table[index].load();
             if(book==nullptr) return nullptr;
             if(book->instrument==instrument) return book;
-            index = (++index) % MAX_INSTRUMENTS;
+            index = (index + 1) % MAX_INSTRUMENTS;
             if(index==start) return nullptr;
         }
     }
