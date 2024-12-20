@@ -10,6 +10,10 @@ It supports limit and market orders.
 
 Remove `fixed.h` , and run `make all` to obtain the latest version of the fixed point decimal library.
 
+You need the [Boost Unit Testing Framework](https://www.boost.org/doc/libs/1_87_0/libs/test/doc/html/index.html) installed.
+
+It compiles using CLang, and requires minor modifications to the Makefile to use GCC. CLang seemed to generate higher performing code.
+
 ## Usage
 
 See `exchange.h` for the public api. `orderbook.h` is the internal single threaded order book management.
