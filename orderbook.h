@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <map>
 #include <deque>
+#include <list>
 
 #include "order.h"
 #include "orderlist.h"
@@ -57,9 +58,20 @@ private:
     PriceLevels asks = PriceLevels(true);
     OrderBookListener& listener;
     void matchOrders(Side aggressorSide);
+    static const int BLOCK_LEN = 65536;
+    static const int ORDER_LEN = sizeof(Order);
+    uint8_t * currentBlock = (uint8_t*)malloc(BLOCK_LEN);
+    int blockUsed = 0;
+    std::list<void*> blocks;
 public:
     const std::string instrument;
     OrderBook(const std::string &instrument,OrderBookListener& listener) : listener(listener), instrument(instrument){}
+    ~OrderBook() {
+        for(auto ptr : blocks) {
+            free(ptr);
+        }
+        free(currentBlock);
+    }
     void insertOrder(Order* order);
     int cancelOrder(Order *order);
     const Book book();
@@ -67,15 +79,12 @@ public:
     Guard lock() {
         return mu.lock();
     }
-    static const int BLOCK_LEN = 65536;
-    static const int ORDER_LEN = sizeof(Order);
-    uint8_t * currentBlock = (uint8_t*)malloc(BLOCK_LEN);
-    int blockUsed = 0;
     void * allocateOrder() {
         /** since all orders have a reference maintained to them, use an efficient bump allocator.
             This currently leaks even if the Exchange instance is destroyed. TODO track allocated
             blocks on a list to free in destructor. */
         if(BLOCK_LEN-blockUsed < ORDER_LEN) {
+            blocks.push_back(currentBlock);
             currentBlock = (uint8_t*)malloc(BLOCK_LEN);
             blockUsed=0;
         }
