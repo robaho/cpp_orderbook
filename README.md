@@ -128,7 +128,7 @@ The interview exercise provided no guidelines on these parameters, and the test 
 
 The real problem is that when you create a "production grade" solution with auditing, logging, and all sorts of IO, the cost of those elements dwarf any speed gains achieved via the micro-optimizations, and getting those right - which many developers can't do - often leads to 10x performance improvements over the "fast" solution, usually because refactoring a "simple" solution is so much easier. Furthermore, making a solution "safe" comes at a cost, optimizing engineers know how to balance these - or you can go with the "unsafe" solution but be prepared to be the next Knight Capital. 
 
-In my opinion, it's a fairly common blunder in hiring - where the interviewer only accepts/understands the solution they expect to see - a 15 minute conversation might have delivered a different outcome.
+In my opinion, it's a fairly common blunder in hiring - where the interviewer only accepts/understands the solution they expect to see - a 15 minute conversation might have resulted in a different outcome.
 
 Anyway, I hope this is helpful to others when faced with a similar problem.
 
