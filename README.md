@@ -111,15 +111,28 @@ Cancel orders at less than 70 nanoseconds per cancel.
 
 The test is fully cpu bound, and achieves a near 100% speedup per core. This is made possible using a few highly efficient lock-free structures.
 
-This later revisions of this project were born out of a job rejection. An order book is a fairly common "task" when interviewing in fintech as it is so pervasive. I was lucky enough to have feedback through a secondary source that listed items like "used string", and used dynamic memory.
-
-If you review the performance details it's pretty clear that the optimal data structure is dependent upon the histogram of the operations performed and the size of the order book. If you're implementing an exchange, you need to account for every price level, if you're a buy side firm, normally 10 levels on either side is sufficient to implement most strategies. For example, using a vector with pointers is best when matching, but a vector with structs is best for the cancel operations. So the operation biasing requirements control which implementation is optimal.
-
-This particular firm provided no guidelines on these parameters, and the test data was blind, and then rejected the solution as inefficient without any in-person discussion of the design, constraints, etc. Imo it's a classic blunder in hiring - when the interviewer only accepts/understands the solution they expect. In fairness, it took several revisions of the code to be able to make these claims - but isn't that what optimizing engineering is?
-
-Anyway, I hope its helpful to others when faced with a similar problem.
-
 See `benchmark_test.cpp` and `benchmark_multithread_test.cpp` for the performance tests.
+
+## Motivation
+
+<details>
+    <summary>Why did I do this?</summary>
+<br/>
+Later revisions (including many micro-optimizations) of this project were born out of a job rejection in an effort to see "just how fast I could go". An order book is a fairly common exercise when interviewing in fintech. Having written multiple production grade orderbook implementations in my career, I was baffled at the rejection.
+
+I was lucky enough to have feedback through a secondary source that listed items like "used string", and "used dynamic memory". Where the reviewer errored is that they did not go deep enough to understand _how_ they were being used. Almost all string usages were references at near zero cost, except for the callbacks where copies were used for safety. The dynamic memory solution uses a custom arena allocator - again a near zero cost - but it makes the solution more complex.
+
+A review of performance details above makes it clear that the optimal data structure is dependent upon the distribution of the operations performed and the typical size of the order book. If you're implementing an exchange, you need to account for every price level, if you're a buy side firm, normally 10 levels on either side is sufficient to implement most strategies. As with all engineering, the optimum solution is based on the particular usage and constraints.
+
+The interview exercise provided no guidelines on these parameters, and the test data was blind. My solution was rejected as inefficient. As I considered the solution _fast enough_ in the general case, I decided to keep the code "clean", and I focused on other areas like test cases and documentation. For instance, the reason a cancel in the current solution is "super fast" is because the Order maintains pointers back into the OrderList for fast removal - which is somewhat brittle and not intuitively obvious - it doesn't _read well_ BUT IT'S **FAST!**
+
+The real problem is that when you create a "production grade" solution with auditing, logging, and all sorts of IO, the cost of those elements dwarf any speed gains achieved via the micro-optimizations, and getting those right - which many developers can't do - often leads to 10x performance improvements over the "fast" solution, usually because refactoring a "simple" solution is so much easier. Furthermore, making a solution "safe" comes at a cost, optimizing engineers know how to balance these - or you can go with the "unsafe" solution but be prepared to be the next Knight Capital. 
+
+In my opinion, it's a fairly common blunder in hiring - where the interviewer only accepts/understands the solution they expect to see - a 15 minute conversation might have resulted in a different outcome.
+
+Anyway, I hope this is helpful to others when faced with a similar problem.
+
+</details>
 
 ## Next Steps
 
