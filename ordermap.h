@@ -17,7 +17,6 @@ public:
         Order* expected = table[bucket].load();
         order->next = expected;
         while(!table[bucket].compare_exchange_weak(expected,order)) {
-            expected = table[bucket].load();
             order->next = expected;
         }
     }
