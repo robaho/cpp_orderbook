@@ -1,9 +1,10 @@
 CXX = clang++
-# CXXFLAGS = -std=c++20 -Wall -O0 -fsanitize=address -fno-omit-frame-pointer -pedantic-errors -g -I include
-# CXXFLAGS = -std=c++20 -Wall -pedantic-errors -g -I include
-CXXFLAGS = -std=c++20 -O3 -Wall -pedantic-errors -g -I include -fno-permissive
-# CXXFLAGS = -std=c++20 -O3 -fprofile-generate -Wall -pedantic-errors -g -I include
-# CXXFLAGS = -std=c++20 -O3 -fprofile-use=default.profdata -Wall -pedantic-errors -g -I include
+INCLUDES = 
+# CXXFLAGS = -std=c++20 -Wall -O0 -fsanitize=address -fno-omit-frame-pointer -pedantic-errors -g ${INCLUDES}
+# CXXFLAGS = -std=c++20 -Wall -pedantic-errors -g ${INCLUDES}
+CXXFLAGS = -std=c++20 -O3 -Wall -pedantic-errors -g -fno-permissive ${INCLUDES}
+# CXXFLAGS = -std=c++20 -O3 -fprofile-generate -Wall -pedantic-errors -g ${INCLUDES}
+# CXXFLAGS = -std=c++20 -O3 -fprofile-use=default.profdata -Wall -pedantic-errors -g ${INCLUDES}
 
 TEST_SRCS = ${wildcard *_test.cpp}
 TEST_OBJS = $(addprefix bin/, $(TEST_SRCS:.cpp=.o))
