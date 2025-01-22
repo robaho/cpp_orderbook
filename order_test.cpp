@@ -6,7 +6,7 @@
 
 BOOST_AUTO_TEST_CASE( order_basic ) {
     auto order = TestOrder("myorder",1,100,10,BUY);
-    BOOST_TEST(order.orderId == "myorder");
+    BOOST_REQUIRE_EQUAL(order.orderId(),std::string_view("myorder"));
     auto order2 = TestOrder("myorder2",1,100,10,BUY);
-    BOOST_TEST(order2.orderId == "myorder2");
+    BOOST_REQUIRE_EQUAL(order2.orderId(),std::string_view("myorder2"));
 }

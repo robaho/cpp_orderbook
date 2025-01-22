@@ -1,7 +1,5 @@
 #pragma once
 #include <stdexcept>
-#include <unordered_map>
-
 #include "order.h"
 
 // TODO add forward_iterator support so that friend class in not needed

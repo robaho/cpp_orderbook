@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
 
 #include "order.h"
 #include "orderbook.h"
@@ -21,16 +20,16 @@ public:
     Exchange();
     Exchange(ExchangeListener& listener);
     /** submit limit buy order. returns exchange order id */
-    long buy(const std::string& instrument,F price,int quantity,const std::string& orderId);
+    long buy(const SessionId& sessionId,const std::string& instrument,F price,int quantity,const std::string& orderId);
     /** submit market buy order. returns exchange order id. If the order cannot be filled, the rest is cancelled */
-    long marketBuy(const std::string& instrument,int quantity,const std::string& orderId) {
-        return buy(instrument,DBL_MAX,quantity,orderId);
+    long marketBuy(const SessionId& sessionId,const std::string& instrument,int quantity,const std::string& orderId) {
+        return buy(sessionId,instrument,DBL_MAX,quantity,orderId);
     }
     /** submit limit sell order. returns exchange order id */
-    long sell(const std::string& instrument,F price,int quantity,const std::string& orderId);
+    long sell(const SessionId& sessionId,const std::string& instrument,F price,int quantity,const std::string& orderId);
     /** submit market sell order. returns exchange order id. If the order cannot be filled, the rest is cancelled */
-    long marketSell(const std::string& instrument,int quantity,const std::string& orderId) {
-        return sell(instrument,-DBL_MAX,quantity,orderId);
+    long marketSell(const SessionId& sessionId,const std::string& instrument,int quantity,const std::string& orderId) {
+        return sell(sessionId,instrument,-DBL_MAX,quantity,orderId);
     }
     int cancel(long exchangeId);
     const Book book(const std::string& instrument);
@@ -49,6 +48,6 @@ private:
     OrderMap allOrders;
     SpinLock mu;
     long nextID();
-    long insertOrder(const std::string& instrument,F price,int quantity,Side side,const std::string& orderId);
+    long insertOrder(const SessionId& sessionId,const std::string& instrument,F price,int quantity,Side side,const std::string& orderId);
     ExchangeListener& listener;
 };

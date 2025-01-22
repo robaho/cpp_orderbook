@@ -38,6 +38,20 @@ public:
         auto len = oid.copy(buffer, 64);
         buffer[len]=0;
     }
+    operator const std::string_view() const { return std::string_view(buffer); }
+    operator const char *() const { return buffer; }
+};
+
+struct SessionId {
+// used to avoid dynamic memory in std::string, even though SSO (small string optimization) usually avoids it
+private:
+    char buffer[64];
+public:
+    SessionId(const std::string& oid) {
+        auto len = oid.copy(buffer, 64);
+        buffer[len]=0;
+    }
+    operator const std::string_view() const { return std::string_view(buffer); }
     operator const char *() const { return buffer; }
 };
 
@@ -55,6 +69,7 @@ private:
 
     int remaining;
     int filled=0;
+    const SessionId& _sessionId;
     OrderId _orderId;
     
     void fill(int quantity) { remaining -= quantity; filled += quantity; }
@@ -62,10 +77,11 @@ private:
     bool isMarket() { return price == DBL_MAX || price == -DBL_MAX; } // could add "type" property, but not necessary for only limit and market orders
 protected:
     // protected to allow testcase
-    Order(const std::string &orderId,const std::string &instrument,F price,int quantity,Side side,long exchangeId) : timeSubmitted(epoch()), remaining(quantity),
-     _orderId(orderId), orderId(_orderId), instrument(instrument), exchangeId(exchangeId) , price(price), quantity(quantity), side(side) {}
+    Order(const SessionId& sessionId,const std::string &orderId,const std::string &instrument,F price,int quantity,Side side,long exchangeId) : timeSubmitted(epoch()), remaining(quantity),
+     _sessionId(sessionId), _orderId(orderId), instrument(instrument), exchangeId(exchangeId) , price(price), quantity(quantity), side(side) {}
 public:
-    const char * const orderId;
+    const SessionId& sessionId() { return _sessionId; }
+    const OrderId& orderId() { return _orderId; }
     const std::string &instrument; 
     const long exchangeId;
     const F price;

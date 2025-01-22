@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "exchange.h"
+#include "order.h"
 #include "orderbook.h"
 #include "test.h"
 
@@ -30,12 +31,13 @@ void insertOrders(const bool withTrades) {
     } listener;
 
     Exchange exchange(listener);
-    auto fn = [&exchange,withTrades](const std::string &instrument) {
+    const SessionId session("dummy");
+    auto fn = [&exchange,session,withTrades](const std::string &instrument) {
         for(int i=0;i<N_ORDERS;i++) {
-            exchange.buy(instrument,5000.0 + 1 * (i%1000),10,"");
+            exchange.buy(session,instrument,5000.0 + 1 * (i%1000),10,"");
         }
         for(int i=0;i<N_ORDERS;i++) {
-            exchange.sell(instrument,(withTrades ? 5000.0 : 10000.0) + 1 * (i%1000),10,"");
+            exchange.sell(session,instrument,(withTrades ? 5000.0 : 10000.0) + 1 * (i%1000),10,"");
         }
     };
 
@@ -76,10 +78,11 @@ void cancelOrders() {
     } listener;
 
     Exchange exchange(listener);
+    const SessionId session("dummy");
 
     for(int t=0;t<N_THREADS;t++) {
         for(int i=0;i<N_ORDERS;i++) {
-            auto oid = exchange.buy(instruments[t], 100.0 + 1 * (i%1000), 10, dummy_oid);
+            auto oid = exchange.buy(session,instruments[t], 100.0 + 1 * (i%1000), 10, dummy_oid);
             oids[t][i]=oid;
         }
     }

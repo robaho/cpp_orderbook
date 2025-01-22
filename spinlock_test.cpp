@@ -1,8 +1,7 @@
-#include "orderbook.h"
 #define BOOST_TEST_MODULE spinlock
 #include <boost/test/included/unit_test.hpp>
 
-#include "test.h"
+#include "spinlock.h"
 
 BOOST_AUTO_TEST_CASE( spinlock_basic ) {
     SpinLock lock;

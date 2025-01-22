@@ -55,16 +55,16 @@ cancel orders 10 levels, usec per order 0.121652, orders per sec 8220169
 
 Using vector with structs:
 
-insert orders 1000 levels, usec per order 0.154717, orders per sec 6463397
+insert orders 1000 levels, usec per order 0.148432, orders per sec 6737078
 insert orders 1000 levels with trade match % 0
-insert orders 1000 levels, usec per order 0.381428, orders per sec 2621729
+insert orders 1000 levels, usec per order 0.355023, orders per sec 2816722
 insert orders 1000 levels with trade match % 31
-cancel orders 1000 levels, usec per order 0.189634, orders per sec 5273315
-insert orders 10 levels, usec per order 0.118384, orders per sec 8447073
+cancel orders 1000 levels, usec per order 0.189536, orders per sec 5276042
+insert orders 10 levels, usec per order 0.0958039, orders per sec 10437988
 insert orders 10 levels with trade match % 0
-insert orders 10 levels, usec per order 0.151584, orders per sec 6597011
+insert orders 10 levels, usec per order 0.133279, orders per sec 7503046
 insert orders 10 levels with trade match % 33
-cancel orders 10 levels, usec per order 0.126755, orders per sec 7889235
+cancel orders 10 levels, usec per order 0.124691, orders per sec 8019825
 
 Using map:
 
@@ -97,16 +97,17 @@ cancel orders 10 levels, usec per order 0.123793, orders per sec 8078001
 Running OSX on a 4 GHz Quad-Core Intel Core i7 with a single instrument.
 
 ```
-Insert orders at 5.5M - 8.5M per second
-Insert orders with 30% trade match, 4M - 6.5M per second
+Insert orders at 5.5M - 105M per second
+Insert orders with 30% trade match, 4M - 8M per second
 Cancel orders at 4M - 8.5M per second
 ```
+_The number of price levels is the dominating factor._
 
 Running same hardware with an instrument per core:
 ```
-Insert orders at less than 50 nanoseconds per insert, more than 22M orders per second.
-Insert orders with 31% trade match at less than 65 nanoseconds per insert/match.
-Cancel orders at less than 70 nanoseconds per cancel.
+Insert orders at less than 50 nanoseconds per insert, 22M+ orders per second.
+Insert orders with 31% trade match at less than 65 nanoseconds per insert/match, 10M+ orders per second.
+Cancel orders at less than 70 nanoseconds per cancel, at 13M+ cancels per second.
 ```
 
 The test is fully cpu bound, and achieves a near 100% speedup per core. This is made possible using a few highly efficient lock-free structures.

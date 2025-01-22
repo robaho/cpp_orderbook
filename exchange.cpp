@@ -41,23 +41,23 @@ int Exchange::cancel(long exchangeId) {
     return book->cancelOrder(order);
 }
 
-long Exchange::insertOrder(const std::string& instrument,F price,int quantity,Side side,const std::string& orderId) {
+long Exchange::insertOrder(const SessionId& sessionId,const std::string& instrument,F price,int quantity,Side side,const std::string& orderId) {
     OrderBook *book = books.getOrCreate(instrument,*this);
     auto bookGuard = book->lock();
     long id = nextID();
-    Order *order = new (book->allocateOrder()) Order(orderId,book->instrument,price,quantity,side,id);
+    Order *order = new (book->allocateOrder()) Order(sessionId,orderId,book->instrument,price,quantity,side,id);
     allOrders.add(order);
 
     book->insertOrder(order);
     return id;
 }
 
-long Exchange::buy(const std::string& instrument,F price,int quantity,const std::string& orderId) {
-    return insertOrder(instrument,price,quantity,BUY,orderId);
+long Exchange::buy(const SessionId& sessionId,const std::string& instrument,F price,int quantity,const std::string& orderId) {
+    return insertOrder(sessionId,instrument,price,quantity,BUY,orderId);
 }
 
-long Exchange::sell(const std::string& instrument,F price,int quantity,const std::string& orderId) {
-    return insertOrder(instrument,price,quantity,SELL,orderId);
+long Exchange::sell(const SessionId& sessionId,const std::string& instrument,F price,int quantity,const std::string& orderId) {
+    return insertOrder(sessionId,instrument,price,quantity,SELL,orderId);
 }
 
 long Exchange::nextID() {
