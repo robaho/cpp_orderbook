@@ -134,6 +134,6 @@ Anyway, I hope this is helpful to others when faced with a similar problem.
 
 </details>
 
-## Next Steps
+## Related projects
 
-Add FIX protocol acceptor to enable testing with `go-trader` client.
+See [cpp_fix_codec](https://github.com/robaho/cpp_fix_codec) for an utlra-high-performance FIX protocol parser.
