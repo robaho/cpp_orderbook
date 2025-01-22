@@ -8,7 +8,7 @@ BOOST_AUTO_TEST_CASE( spinlock_basic ) {
     SpinLock lock;
 
     {
-        auto guard = lock.lock();
+        Guard guard(lock);
         BOOST_TEST(lock.try_lock()==false);
         BOOST_TEST(lock.is_locked()==true);
     }
@@ -16,18 +16,6 @@ BOOST_AUTO_TEST_CASE( spinlock_basic ) {
     BOOST_TEST(lock.try_lock()==true);
     lock.unlock();
     BOOST_TEST(lock.try_lock()==true);
-}
-
-BOOST_AUTO_TEST_CASE( spinlock_lambda) {
-    SpinLock lock;
-
-    auto guard = 
-    [&] {
-        auto guard = lock.lock();
-        return guard;
-    } ();
-
-    BOOST_TEST(lock.is_locked()==true);
 }
 
 BOOST_AUTO_TEST_CASE( spinlock_multithread) {
@@ -38,12 +26,12 @@ BOOST_AUTO_TEST_CASE( spinlock_multithread) {
     long count = 0;
 
     {
-        auto guard = lock.lock();
+        Guard guard(lock);
 
         auto fn = [&](){
             for(int i=0;i<1000000;i++) {
                 {
-                    auto guard = lock.lock();
+                    Guard guard(lock);
                     count++;
                 }
             }

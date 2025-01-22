@@ -7,28 +7,15 @@
 #include <immintrin.h>
 #include <iostream>
 
-class Guard {
-friend class SpinLock;
-public:
-    ~Guard() {
-        mutex.clear(std::memory_order_release);
-        mutex.notify_one();
-        // std::cout << "unlocked by guard\n";
-    }
-private:
-    Guard(std::atomic_flag &mutex) : mutex(mutex) {}
-    std::atomic_flag &mutex;        
-};
-
 class SpinLock {
 private:
     std::atomic_flag mutex;
 public:
-    Guard lock() {
+    void lock() {
         while(true) {
             while(mutex.test(std::memory_order_acquire)) _mm_pause();
             if(!mutex.test_and_set(std::memory_order_acquire)) {
-                return Guard(mutex);
+                return;
             } else {
                 mutex.wait(true);
                 // std::this_thread::yield();
@@ -46,3 +33,5 @@ public:
         return mutex.test();
     }
 };
+
+typedef std::lock_guard<SpinLock> Guard;

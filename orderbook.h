@@ -77,7 +77,7 @@ public:
     const Book book();
     const Order getOrder(Order *order);
     Guard lock() {
-        return mu.lock();
+        return Guard(mu);
     }
     void * allocateOrder() {
         /** since all orders have a reference maintained to them, use an efficient bump allocator.

@@ -42,7 +42,7 @@ public:
         listener.onTrade(trade);
     }
     Guard lock() {
-        return mu.lock();
+        return Guard(mu);
     }
 private:
     BookMap books;
