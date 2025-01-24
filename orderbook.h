@@ -1,18 +1,11 @@
 #pragma once
 
-#include <chrono>
 #include <list>
-#include <stdexcept>
 #include <vector>
-#include <mutex>
-#include <algorithm>
 #include <map>
-#include <deque>
 #include <list>
 
 #include "order.h"
-#include "orderlist.h"
-#include "fixed.h"
 #include "spinlock.h"
 #include "pricelevels.h"
 
@@ -36,9 +29,8 @@ public:
 };
 
 struct BookLevel {
-    const F price;
-    const int quantity;
-    BookLevel(F price,int quantity) : price(price), quantity(quantity){}
+    F price;
+    int quantity;
 };
 
 struct Book {
@@ -47,6 +39,28 @@ struct Book {
     std::vector<BookLevel> asks;
     std::vector<long> askOrderIds;
 };
+
+// map of Session+QuoteId to the associated orders, or null if no quote on that side
+struct QuoteOrders {
+    Order* bid=nullptr;
+    Order* ask=nullptr;
+};
+
+struct SessionQuoteId {
+    const std::string sessionId;
+    const std::string quoteId;
+    SessionQuoteId(const std::string& sessionId,const std::string_view& quoteId) : sessionId(sessionId), quoteId(quoteId){}
+    bool operator<(const SessionQuoteId& other) const {
+        return sessionId<other.sessionId || (sessionId==other.sessionId && quoteId<other.quoteId);
+    }
+    bool operator==(const SessionQuoteId& other) const {
+        return sessionId==other.sessionId && quoteId==other.quoteId;
+    }
+};
+
+inline std::ostream& operator<<(std::ostream& os, const SessionQuoteId& id) {
+    return os << "[" << id.sessionId << ":" << id.quoteId << "]";
+}
 
 class Exchange;
 
@@ -63,6 +77,7 @@ private:
     uint8_t * currentBlock = (uint8_t*)malloc(BLOCK_LEN);
     int blockUsed = 0;
     std::list<void*> blocks;
+    std::map<SessionQuoteId,QuoteOrders> quotes;
 public:
     const std::string instrument;
     OrderBook(const std::string &instrument,OrderBookListener& listener) : listener(listener), instrument(instrument){}
@@ -72,8 +87,12 @@ public:
         }
         free(currentBlock);
     }
+
     void insertOrder(Order* order);
     int cancelOrder(Order *order);
+
+    void quote(const std::string& sessionId,F bidPrice,int bidQuantity,F askPrice,int askQuantity,const std::string& quoteId);
+
     const Book book();
     const Order getOrder(Order *order);
     Guard lock() {

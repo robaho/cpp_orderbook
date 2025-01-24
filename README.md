@@ -8,7 +8,7 @@ It supports limit and market orders.
 
 ## Building
 
-Remove `fixed.h` , and run `make all` to obtain the latest version of the fixed point decimal library.
+Clone [cpp_fixed](https://github.com/robaho/cpp_fixed) at the same directory level. The location of `cpp_fixed` can be set via `INCLUDES` in the `Makefile`.
 
 You need the [Boost Unit Testing Framework](https://www.boost.org/doc/libs/1_87_0/libs/test/doc/html/index.html) installed.
 

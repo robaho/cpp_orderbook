@@ -41,7 +41,7 @@ public:
         }
     }
     void remove(Order * const order){
-        if(order->node.order==nullptr) throw new std::runtime_error("node is null on removal");
+        if(order->node.order==nullptr) throw std::runtime_error("node is null on removal");
         auto node = &order->node;
         order->node.order = nullptr;
         if(head==node) {

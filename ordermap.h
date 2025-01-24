@@ -1,9 +1,6 @@
 #pragma once
 
 #include "order.h"
-#include <thread>
-#include <vector>
-#include <array>
 
 /**
  * @brief lock-free map of external order ID -> Order

@@ -1,6 +1,5 @@
 #include "exchange.h"
 #include "orderbook.h"
-#include <mutex>
 #include <stdexcept>
 #include <string>
 
@@ -41,23 +40,29 @@ int Exchange::cancel(long exchangeId) {
     return book->cancelOrder(order);
 }
 
-long Exchange::insertOrder(const SessionId& sessionId,const std::string& instrument,F price,int quantity,Side side,const std::string& orderId) {
+long Exchange::insertOrder(const std::string& sessionId,const std::string_view& instrument,F price,int quantity,Side side,const std::string_view& orderId) {
     OrderBook *book = books.getOrCreate(instrument,*this);
     auto bookGuard = book->lock();
     long id = nextID();
-    Order *order = new (book->allocateOrder()) Order(sessionId,orderId,book->instrument,price,quantity,side,id);
+    Order *order = new (book->allocateOrder()) Order(sessionId,std::string(orderId),book->instrument,price,quantity,side,id);
     allOrders.add(order);
 
     book->insertOrder(order);
     return id;
 }
 
-long Exchange::buy(const SessionId& sessionId,const std::string& instrument,F price,int quantity,const std::string& orderId) {
+long Exchange::buy(const std::string& sessionId,const std::string_view& instrument,F price,int quantity,const std::string_view& orderId) {
     return insertOrder(sessionId,instrument,price,quantity,BUY,orderId);
 }
 
-long Exchange::sell(const SessionId& sessionId,const std::string& instrument,F price,int quantity,const std::string& orderId) {
+long Exchange::sell(const std::string& sessionId,const std::string_view& instrument,F price,int quantity,const std::string_view& orderId) {
     return insertOrder(sessionId,instrument,price,quantity,SELL,orderId);
+}
+
+void Exchange::quote(const std::string& sessionId,const std::string_view& instrument,F bidPrice,int bidQuantity,F askPrice,int askQuantity,const std::string_view& quoteId) {
+    OrderBook *book = books.getOrCreate(instrument,*this);
+    auto bookGuard = book->lock();
+    book->quote(sessionId,bidPrice,bidQuantity,askPrice,askQuantity,std::string(quoteId));
 }
 
 long Exchange::nextID() {

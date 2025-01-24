@@ -15,12 +15,12 @@ public:
     BookMap() {
         for(int i=0;i<MAX_INSTRUMENTS;i++) table[i].store(nullptr);
     }
-    OrderBook* getOrCreate(const std::string &instrument,OrderBookListener &listener) {
-        auto hash = std::hash<std::string>{}(instrument);
+    OrderBook* getOrCreate(const std::string_view &instrument,OrderBookListener &listener) {
+        auto hash = std::hash<std::string_view>{}(instrument);
         const auto start = hash%MAX_INSTRUMENTS;
         auto book = table[start].load();
         if(book!=nullptr && book->instrument==instrument) return book;
-        auto new_book = new OrderBook(instrument,listener);
+        auto new_book = new OrderBook(std::string(instrument),listener);
         auto index = start;
         while(true) {
             if(book!=nullptr) {
@@ -39,8 +39,8 @@ public:
             }
         }
     };
-    OrderBook* get(const std::string &instrument) {
-        auto hash = std::hash<std::string>{}(instrument);
+    OrderBook* get(const std::string_view &instrument) {
+        auto hash = std::hash<std::string_view>{}(instrument);
         const auto start = hash%MAX_INSTRUMENTS;
         auto index = start;
         while(true) {

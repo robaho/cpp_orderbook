@@ -57,17 +57,17 @@ private:
 public:
     PointerPriceLevels(bool ascending) : cmpFn(ascending) {}
     void insertOrder(Order *order) {
-        auto itr = std::lower_bound(levels.begin(),levels.end(),order->price, cmpFn);
+        auto itr = std::lower_bound(levels.begin(),levels.end(),order->price(), cmpFn);
         OrderList *list;
-        if(itr==levels.end() || (*itr)->price()!=order->price) {
-            list = new OrderList(order->price);
+        if(itr==levels.end() || (*itr)->price()!=order->price()) {
+            list = new OrderList(order->price());
             levels.insert(itr,list);
         } else list = *itr;
         list->pushback(order);
     }
     void removeOrder(Order *order) {
-        auto itr = std::lower_bound(levels.begin(),levels.end(),order->price, cmpFn);
-        if(itr==levels.end() || (*itr)->price()!=order->price) throw new std::runtime_error("price level for order does not exist");
+        auto itr = std::lower_bound(levels.begin(),levels.end(),order->price(), cmpFn);
+        if(itr==levels.end() || (*itr)->price()!=order->price()) throw new std::runtime_error("price level for order does not exist");
         OrderList *list = *itr;
         list->remove(order);
         if(list->front()==nullptr) {
@@ -101,9 +101,9 @@ private:
 public:
     StructPriceLevels(bool ascending) : cmpFn(ascending) {}
     void insertOrder(Order *order) {
-        auto itr = std::lower_bound(levels.begin(),levels.end(),order->price, cmpFn);
-        if(itr==levels.end() || itr->price()!=order->price) {
-            OrderList list(order->price);
+        auto itr = std::lower_bound(levels.begin(),levels.end(),order->price(), cmpFn);
+        if(itr==levels.end() || itr->price()!=order->price()) {
+            OrderList list(order->price());
             list.pushback(order);
             levels.insert(itr,std::move(list));
         } else {
@@ -111,8 +111,8 @@ public:
         }
     }
     void removeOrder(Order *order) {
-        auto itr = std::lower_bound(levels.begin(),levels.end(),order->price, cmpFn);
-        if(itr==levels.end() || itr->price()!=order->price) throw new std::runtime_error("price level for order does not exist");
+        auto itr = std::lower_bound(levels.begin(),levels.end(),order->price(), cmpFn);
+        if(itr==levels.end() || itr->price()!=order->price()) throw new std::runtime_error("price level for order does not exist");
         itr->remove(order);
         if(itr->front()==nullptr) {
             levels.erase(itr);
@@ -152,9 +152,9 @@ private:
 public:
     MapPriceLevels(bool ascending) : cmpFn(ascending), levels(cmpFn) {}
     void insertOrder(Order *order) {
-        auto itr = levels.lower_bound(order->price);
-        if(itr==levels.end() || itr->first!=order->price) {
-            OrderList list(order->price);
+        auto itr = levels.lower_bound(order->price());
+        if(itr==levels.end() || itr->first!=order->price()) {
+            OrderList list(order->price());
             list.pushback(order);
             levels.insert({list.price(),std::move(list)});
         } else {
@@ -162,8 +162,8 @@ public:
         }
     }
     void removeOrder(Order *order) {
-        auto itr = levels.lower_bound(order->price);
-        if(itr==levels.end() || itr->first!=order->price) throw new std::runtime_error("price level for order does not exist");
+        auto itr = levels.lower_bound(order->price());
+        if(itr==levels.end() || itr->first!=order->price()) throw new std::runtime_error("price level for order does not exist");
         itr->second.remove(order);
         if(itr->second.front()==nullptr) {
             levels.erase(itr);
@@ -195,9 +195,9 @@ private:
 public:
     MapPtrPriceLevels(bool ascending) : cmpFn(ascending), levels(cmpFn) {}
     void insertOrder(Order *order) {
-        auto itr = levels.lower_bound(order->price);
-        if(itr==levels.end() || itr->first!=order->price) {
-            auto list = new OrderList(order->price);
+        auto itr = levels.lower_bound(order->price());
+        if(itr==levels.end() || itr->first!=order->price()) {
+            auto list = new OrderList(order->price());
             list->pushback(order);
             levels.insert({list->price(),std::move(list)});
         } else {
@@ -205,8 +205,8 @@ public:
         }
     }
     void removeOrder(Order *order) {
-        auto itr = levels.lower_bound(order->price);
-        if(itr==levels.end() || itr->first!=order->price) throw new std::runtime_error("price level for order does not exist");
+        auto itr = levels.lower_bound(order->price());
+        if(itr==levels.end() || itr->first!=order->price()) throw new std::runtime_error("price level for order does not exist");
         itr->second->remove(order);
         if(itr->second->front()==nullptr) {
             levels.erase(itr);

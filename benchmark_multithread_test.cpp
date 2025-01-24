@@ -31,7 +31,7 @@ void insertOrders(const bool withTrades) {
     } listener;
 
     Exchange exchange(listener);
-    const SessionId session("dummy");
+    const std::string session("dummy");
     auto fn = [&exchange,session,withTrades](const std::string &instrument) {
         for(int i=0;i<N_ORDERS;i++) {
             exchange.buy(session,instrument,5000.0 + 1 * (i%1000),10,"");
@@ -78,7 +78,7 @@ void cancelOrders() {
     } listener;
 
     Exchange exchange(listener);
-    const SessionId session("dummy");
+    const std::string session("dummy");
 
     for(int t=0;t<N_THREADS;t++) {
         for(int i=0;i<N_ORDERS;i++) {

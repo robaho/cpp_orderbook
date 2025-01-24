@@ -1,5 +1,5 @@
 CXX = clang++
-INCLUDES = 
+INCLUDES = -I ../cpp_fixed
 # CXXFLAGS = -std=c++20 -Wall -O0 -fsanitize=address -fno-omit-frame-pointer -pedantic-errors -g ${INCLUDES}
 # CXXFLAGS = -std=c++20 -Wall -pedantic-errors -g ${INCLUDES}
 CXXFLAGS = -std=c++20 -O3 -Wall -pedantic-errors -g -fno-permissive ${INCLUDES}
@@ -10,16 +10,13 @@ TEST_SRCS = ${wildcard *_test.cpp}
 TEST_OBJS = $(addprefix bin/, $(TEST_SRCS:.cpp=.o))
 TEST_MAINS = $(addprefix bin/, $(TEST_SRCS:.cpp=))
 
-HEADERS = ${wildcard *.h} fixed.h
+HEADERS = ${wildcard *.h}
 
 SRCS = orderbook.cpp exchange.cpp
 
 OBJS = $(addprefix bin/, $(SRCS:.cpp=.o))
 
 LIB = bin/orderbook.a
-
-fixed.h:
-	curl -o fixed.h https://raw.githubusercontent.com/robaho/cpp_fixed/main/fixed.h
 
 .PRECIOUS: bin/%.o
 

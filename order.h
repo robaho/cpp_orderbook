@@ -29,32 +29,6 @@ private:
     Order *order=nullptr;
 };
 
-struct OrderId {
-// used to avoid dynamic memory in std::string, even though SSO (small string optimization) usually avoids it
-private:
-    char buffer[64];
-public:
-    OrderId(const std::string& oid) {
-        auto len = oid.copy(buffer, 64);
-        buffer[len]=0;
-    }
-    operator const std::string_view() const { return std::string_view(buffer); }
-    operator const char *() const { return buffer; }
-};
-
-struct SessionId {
-// used to avoid dynamic memory in std::string, even though SSO (small string optimization) usually avoids it
-private:
-    char buffer[64];
-public:
-    SessionId(const std::string& oid) {
-        auto len = oid.copy(buffer, 64);
-        buffer[len]=0;
-    }
-    operator const std::string_view() const { return std::string_view(buffer); }
-    operator const char *() const { return buffer; }
-};
-
 struct Order {
 friend class OrderBook;
 friend class OrderList;
@@ -69,24 +43,34 @@ private:
 
     int remaining;
     int filled=0;
-    const SessionId& _sessionId;
-    OrderId _orderId;
+    const std::string& _sessionId;
+    std::string _orderId;
+
+    F _price;
+    int _quantity;
+
+    bool isQuote = false;
     
     void fill(int quantity) { remaining -= quantity; filled += quantity; }
     void cancel() { remaining = 0; }
-    bool isMarket() { return price == DBL_MAX || price == -DBL_MAX; } // could add "type" property, but not necessary for only limit and market orders
+    bool isMarket() { return _price == DBL_MAX || _price == -DBL_MAX; } // could add "type" property, but not necessary for only limit and market orders
 protected:
     // protected to allow testcase
-    Order(const SessionId& sessionId,const std::string &orderId,const std::string &instrument,F price,int quantity,Side side,long exchangeId) : timeSubmitted(epoch()), remaining(quantity),
-     _sessionId(sessionId), _orderId(orderId), instrument(instrument), exchangeId(exchangeId) , price(price), quantity(quantity), side(side) {}
+    Order(const std::string& sessionId,const std::string &orderId,const std::string &instrument,F price,int quantity,Side side,long exchangeId) : timeSubmitted(epoch()), remaining(quantity),
+     _sessionId(sessionId), _orderId(orderId), _price(price), _quantity(quantity), instrument(instrument), exchangeId(exchangeId), side(side) {}
 public:
-    const SessionId& sessionId() { return _sessionId; }
-    const OrderId& orderId() { return _orderId; }
+    const std::string& sessionId() { return _sessionId; }
+    const std::string& orderId() { return _orderId; }
     const std::string &instrument; 
     const long exchangeId;
-    const F price;
-    const int quantity;
     const Side side;
+
+    bool isOnList() {
+        return node.order!=nullptr;
+    }
+
+    F price() const { return _price; }
+    int quantity() const { return _quantity; }
 
     int remainingQuantity() const {
         return remaining;
@@ -95,10 +79,10 @@ public:
         return filled;
     }
     bool isCancelled() {
-        return remaining==0 && filled!=quantity;
+        return remaining==0 && filled!=_quantity;
     }
     bool isFilled() {
-        return remaining==0 && filled==quantity;
+        return remaining==0 && filled==_quantity;
     }
     bool isPartiallyFilled() {
         return remaining==0 && filled>0;

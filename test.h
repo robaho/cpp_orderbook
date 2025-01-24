@@ -3,7 +3,7 @@
 #include "exchange.h"
 #include "order.h"
 
-static const SessionId session("dummy");
+static const std::string session("dummy");
 static const std::string dummy_instrument = "dummy";
 
 class TestExchange : public Exchange {

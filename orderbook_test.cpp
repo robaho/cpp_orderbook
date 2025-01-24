@@ -1,3 +1,4 @@
+#include "order.h"
 #define BOOST_TEST_MODULE orderbook
 #include <boost/test/included/unit_test.hpp>
 
@@ -106,3 +107,81 @@ BOOST_AUTO_TEST_CASE( booklevels_order ) {
     BOOST_TEST(levels.asks[2].price==201);
     BOOST_TEST(levels.asks[3].price==202);
 }
+
+BOOST_AUTO_TEST_CASE( sessionId ) {
+    const std::string s1("session1");
+    const std::string s2("session2");
+    const std::string s3("session1");
+
+    BOOST_TEST(s1<s2);
+    BOOST_TEST(!(s2<s1));
+    BOOST_TEST(s1==s1);
+    BOOST_TEST(!(s1==s2));
+    BOOST_TEST(s1==s3);
+}
+
+BOOST_AUTO_TEST_CASE( sessionQuoteId ) {
+    std::string session1("session1");
+    std::string session2("session2");
+    std::string session3("session1");
+
+    SessionQuoteId s1(session1, "quote1");
+    SessionQuoteId s2(session2, "quote2");
+    SessionQuoteId s3(session3, "quote1");
+
+    BOOST_TEST(s1<s2);
+    BOOST_TEST(!(s2<s1));
+    BOOST_TEST(s1==s1);
+    BOOST_TEST(!(s1==s2));
+    BOOST_TEST(s1==s3);
+}
+
+
+BOOST_AUTO_TEST_CASE( quoting ) {
+    OrderBookListener listener;
+    OrderBook ob(dummy_instrument,listener);
+
+    std::string sessionId("session");
+    std::string quoteId("myquote");
+
+    ob.quote(sessionId,100,10,101,20,quoteId);
+
+    auto levels = ob.book();
+
+    BOOST_TEST(levels.bids.size()==1);    
+    BOOST_TEST(levels.bids[0].price==100);
+    BOOST_TEST(levels.bids[0].quantity==10);
+
+    BOOST_TEST(levels.asks.size()==1);    
+    BOOST_TEST(levels.asks[0].price==101);
+    BOOST_TEST(levels.asks[0].quantity==20);
+
+    ob.quote(sessionId,100,20,101,30,quoteId);
+
+    levels = ob.book();
+
+    BOOST_TEST(levels.bids.size()==1);    
+    BOOST_TEST(levels.bids[0].price==100);
+    BOOST_TEST(levels.bids[0].quantity==20);
+
+    BOOST_TEST(levels.asks.size()==1);    
+    BOOST_TEST(levels.asks[0].price==101);
+    BOOST_TEST(levels.asks[0].quantity==30);
+
+    ob.quote(sessionId,100,0,101,30,quoteId);
+
+    levels = ob.book();
+
+    BOOST_TEST(levels.bids.size()==0);    
+    BOOST_TEST(levels.asks.size()==1);    
+
+    BOOST_TEST(levels.asks[0].price==101);
+    BOOST_TEST(levels.asks[0].quantity==30);
+
+    ob.quote(sessionId,100,0,101,0,quoteId);
+    levels = ob.book();
+    BOOST_TEST(levels.bids.size()==0);    
+    BOOST_TEST(levels.asks.size()==0);    
+
+}
+
