@@ -40,6 +40,15 @@ struct Book {
     std::vector<long> askOrderIds;
 };
 
+inline std::ostream& operator<<(std::ostream& os, const Book& book) {
+    for (auto side : {book.asks,book.bids}) {
+        for(auto level : side) {
+            os << level.price << " " << level.quantity << "\n";
+        }
+    }
+    return os;
+}
+
 // map of Session+QuoteId to the associated orders, or null if no quote on that side
 struct QuoteOrders {
     Order* bid=nullptr;

@@ -1,8 +1,6 @@
-#include "orderbook.h"
+#include "bookmap.h"
 #define BOOST_TEST_MODULE bookmap
 #include <boost/test/included/unit_test.hpp>
-
-#include "test.h"
 
 static OrderBookListener listener;
 
@@ -27,3 +25,11 @@ BOOST_AUTO_TEST_CASE( books_basic ) {
     BOOST_TEST(book2==book3);
 }
 
+BOOST_AUTO_TEST_CASE( instruments ) {
+    BookMap books;
+
+    auto book = books.getOrCreate("dummy", listener);
+    BOOST_TEST(book!=nullptr);
+    BOOST_REQUIRE_EQUAL(books.instruments()[0],"dummy");
+    BOOST_REQUIRE_EQUAL(books.instruments().size(),1);
+}

@@ -44,6 +44,9 @@ public:
     Guard lock() {
         return Guard(mu);
     }
+    std::vector<const std::string> instruments() {
+        return books.instruments();
+    }
 private:
     BookMap books;
     OrderMap allOrders;
