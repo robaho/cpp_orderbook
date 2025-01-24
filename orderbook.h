@@ -41,10 +41,12 @@ struct Book {
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Book& book) {
+    bool first=true;
     for (auto side : {book.asks,book.bids}) {
         for(auto level : side) {
             os << level.price << " " << level.quantity << "\n";
         }
+        if(first) { os << "----------\n"; first=false; }
     }
     return os;
 }
