@@ -40,7 +40,7 @@ int Exchange::cancel(long exchangeId) {
     return book->cancelOrder(order);
 }
 
-long Exchange::insertOrder(const std::string& sessionId,const std::string_view& instrument,F price,int quantity,Side side,const std::string_view& orderId) {
+long Exchange::insertOrder(const std::string& sessionId,const std::string_view& instrument,F price,int quantity,Order::Side side,const std::string_view& orderId) {
     OrderBook *book = books.getOrCreate(instrument,*this);
     auto bookGuard = book->lock();
     long id = nextID();
@@ -52,19 +52,19 @@ long Exchange::insertOrder(const std::string& sessionId,const std::string_view& 
 }
 
 long Exchange::buy(const std::string& sessionId,const std::string_view& instrument,F price,int quantity,const std::string_view& orderId) {
-    return insertOrder(sessionId,instrument,price,quantity,BUY,orderId);
+    return insertOrder(sessionId,instrument,price,quantity,Order::BUY,orderId);
 }
 
 long Exchange::sell(const std::string& sessionId,const std::string_view& instrument,F price,int quantity,const std::string_view& orderId) {
-    return insertOrder(sessionId,instrument,price,quantity,SELL,orderId);
+    return insertOrder(sessionId,instrument,price,quantity,Order::SELL,orderId);
 }
 
 void Exchange::quote(const std::string& sessionId,const std::string_view& instrument,F bidPrice,int bidQuantity,F askPrice,int askQuantity,const std::string_view& quoteId) {
     OrderBook *book = books.getOrCreate(instrument,*this);
     auto bookGuard = book->lock();
     auto orders = book->getQuotes(sessionId,std::string(quoteId),[&]() -> QuoteOrders{
-        auto bid = new (book->allocateOrder()) Order(sessionId,std::string(quoteId),book->instrument,bidPrice,bidQuantity,BUY,nextID());
-        auto ask = new (book->allocateOrder()) Order(sessionId,std::string(quoteId),book->instrument,askPrice,askQuantity,SELL,nextID());
+        auto bid = new (book->allocateOrder()) Order(sessionId,std::string(quoteId),book->instrument,bidPrice,bidQuantity,Order::BUY,nextID());
+        auto ask = new (book->allocateOrder()) Order(sessionId,std::string(quoteId),book->instrument,askPrice,askQuantity,Order::SELL,nextID());
         allOrders.add(bid);
         allOrders.add(ask);
         return {bid,ask};

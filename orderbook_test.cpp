@@ -9,7 +9,7 @@ BOOST_AUTO_TEST_CASE( orderbook_cancel ) {
     OrderBookListener listener;
     OrderBook ob(dummy_instrument,listener);
 
-    auto o1 = new TestOrder(1,100,10,BUY);
+    auto o1 = new TestOrder(1,100,10,Order::BUY);
     ob.insertOrder(o1);
 
     ob.cancelOrder(o1);
@@ -17,11 +17,11 @@ BOOST_AUTO_TEST_CASE( orderbook_cancel ) {
     auto levels = ob.book();
     BOOST_TEST(levels.bids.size()==0);
 
-    auto o2 = new TestOrder(1,100,10,BUY);
+    auto o2 = new TestOrder(1,100,10,Order::BUY);
     ob.insertOrder(o2);
-    auto o3 = new TestOrder(1,90,10,BUY);
+    auto o3 = new TestOrder(1,90,10,Order::BUY);
     ob.insertOrder(o3);
-    auto o4 = new TestOrder(1,80,10,BUY);
+    auto o4 = new TestOrder(1,80,10,Order::BUY);
     ob.insertOrder(o4);
 
     ob.cancelOrder(o3);
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE( booklevels ) {
     OrderBookListener listener;
     OrderBook ob(dummy_instrument,listener);
 
-    auto o1 = new TestOrder(1,100,10,BUY);
+    auto o1 = new TestOrder(1,100,10,Order::BUY);
     ob.insertOrder(o1);
 
     auto levels = ob.book();
@@ -50,9 +50,9 @@ BOOST_AUTO_TEST_CASE( booklevels_sum ) {
     OrderBookListener listener;
     OrderBook ob(dummy_instrument,listener);
 
-    auto o1 = new TestOrder(1,100,10,BUY);
+    auto o1 = new TestOrder(1,100,10,Order::BUY);
     ob.insertOrder(o1);
-    auto o2 = new TestOrder(2,100,10,BUY);
+    auto o2 = new TestOrder(2,100,10,Order::BUY);
     ob.insertOrder(o2);
 
     auto levels = ob.book();
@@ -65,11 +65,11 @@ BOOST_AUTO_TEST_CASE( booklevels_multiple ) {
     OrderBookListener listener;
     OrderBook ob(dummy_instrument,listener);
 
-    auto o1 = new TestOrder(1,100,10,BUY);
+    auto o1 = new TestOrder(1,100,10,Order::BUY);
     ob.insertOrder(o1);
-    auto o2 = new TestOrder(2,100,10,BUY);
+    auto o2 = new TestOrder(2,100,10,Order::BUY);
     ob.insertOrder(o2);
-    auto o3 = new TestOrder(2,200,30,BUY);
+    auto o3 = new TestOrder(2,200,30,Order::BUY);
     ob.insertOrder(o3);
 
     auto levels = ob.book();
@@ -84,15 +84,15 @@ BOOST_AUTO_TEST_CASE( booklevels_order ) {
     OrderBookListener listener;
     OrderBook ob(dummy_instrument,listener);
 
-    ob.insertOrder(new TestOrder(1,100,10,BUY));
-    ob.insertOrder(new TestOrder(1,101,10,BUY));
-    ob.insertOrder(new TestOrder(1,99,10,BUY));
-    ob.insertOrder(new TestOrder(1,98,10,BUY));
+    ob.insertOrder(new TestOrder(1,100,10,Order::BUY));
+    ob.insertOrder(new TestOrder(1,101,10,Order::BUY));
+    ob.insertOrder(new TestOrder(1,99,10,Order::BUY));
+    ob.insertOrder(new TestOrder(1,98,10,Order::BUY));
 
-    ob.insertOrder(new TestOrder(1,200,10,SELL));
-    ob.insertOrder(new TestOrder(1,199,10,SELL));
-    ob.insertOrder(new TestOrder(1,201,10,SELL));
-    ob.insertOrder(new TestOrder(1,202,10,SELL));
+    ob.insertOrder(new TestOrder(1,200,10,Order::SELL));
+    ob.insertOrder(new TestOrder(1,199,10,Order::SELL));
+    ob.insertOrder(new TestOrder(1,201,10,Order::SELL));
+    ob.insertOrder(new TestOrder(1,202,10,Order::SELL));
 
 
     auto levels = ob.book();
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( quoting ) {
     std::string sessionId("session");
     std::string quoteId("myquote");
 
-    auto quotes = QuoteOrders{new TestOrder(1,100,10,BUY),new TestOrder(2,101,20,SELL)};
+    auto quotes = QuoteOrders{new TestOrder(1,100,10,Order::BUY),new TestOrder(2,101,20,Order::SELL)};
 
     ob.quote(quotes,100,10,101,20);
 

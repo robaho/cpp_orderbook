@@ -11,8 +11,6 @@ typedef std::chrono::time_point<std::chrono::system_clock> TimePoint;
 
 typedef Fixed<7> F;
 
-enum Side { BUY, SELL};
-
 class Exchange;
 class OrderList;
 class OrderMap;
@@ -30,6 +28,9 @@ private:
 };
 
 struct Order {
+public:
+    enum Side { BUY, SELL};
+
 friend class OrderBook;
 friend class OrderList;
 friend class OrderMap;
@@ -57,9 +58,10 @@ private:
     bool isMarket() { return _price == DBL_MAX || _price == -DBL_MAX; } // could add "type" property, but not necessary for only limit and market orders
 protected:
     // protected to allow testcase
-    Order(const std::string& sessionId,const std::string &orderId,const std::string &instrument,F price,int quantity,Side side,long exchangeId) : timeSubmitted(epoch()), remaining(quantity),
+    Order(const std::string& sessionId,const std::string &orderId,const std::string &instrument,F price,int quantity,Order::Side side,long exchangeId) : timeSubmitted(epoch()), remaining(quantity),
      _sessionId(sessionId), _orderId(orderId), _price(price), _quantity(quantity), instrument(instrument), exchangeId(exchangeId), side(side) {}
 public:
+
     const std::string& sessionId() const { return _sessionId; }
     const std::string& orderId() const { return _orderId; }
     const std::string &instrument; 

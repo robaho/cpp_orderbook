@@ -32,6 +32,7 @@ public:
         return sell(sessionId,instrument,-DBL_MAX,quantity,orderId);
     }
     void quote(const std::string& sessionId,const std::string_view& instrument,F bidPrice,int bidQuantity,F askPrice,int askQuantity,const std::string_view& quoteId);
+    // returns 0 if cancelled, else error
     int cancel(long exchangeId);
     const Book book(const std::string& instrument);
     const Order getOrder(long exchangeId);
@@ -55,6 +56,6 @@ private:
     OrderMap allOrders;
     SpinLock mu;
     long nextID();
-    long insertOrder(const std::string& sessionId,const std::string_view& instrument,F price,int quantity,Side side,const std::string_view& orderId);
+    long insertOrder(const std::string& sessionId,const std::string_view& instrument,F price,int quantity,Order::Side side,const std::string_view& orderId);
     ExchangeListener& listener;
 };

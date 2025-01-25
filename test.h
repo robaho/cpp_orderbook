@@ -35,6 +35,6 @@ static const std::string dummy_oid = "";
 
 class TestOrder : public Order {
 public:
-    TestOrder(long id,F price,int quantity,Side side) : Order(session,dummy_oid,dummy_instrument,price,quantity,side,id) {}
-    TestOrder(std::string orderId,long id,F price,int quantity,Side side) : Order(session,orderId,dummy_instrument,price,quantity,side,id) {}
+    TestOrder(long id,F price,int quantity,Order::Side side) : Order(session,dummy_oid,dummy_instrument,price,quantity,side,id) {}
+    TestOrder(std::string orderId,long id,F price,int quantity,Order::Side side) : Order(session,orderId,dummy_instrument,price,quantity,side,id) {}
 };

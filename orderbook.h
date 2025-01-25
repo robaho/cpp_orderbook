@@ -82,7 +82,7 @@ private:
     PriceLevels bids = PriceLevels(false);    
     PriceLevels asks = PriceLevels(true);
     OrderBookListener& listener;
-    void matchOrders(Side aggressorSide);
+    void matchOrders(Order::Side aggressorSide);
     static const int BLOCK_LEN = 65536;
     static const int ORDER_LEN = sizeof(Order);
     uint8_t * currentBlock = (uint8_t*)malloc(BLOCK_LEN);

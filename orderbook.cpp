@@ -8,13 +8,13 @@
 #define LOCK_BOOK() std::lock_guard<std::recursive_mutex> lock(mu)
 
 void OrderBook::insertOrder(Order* order) {
-    auto list = order->side == BUY ? &bids : &asks;
+    auto list = order->side == Order::BUY ? &bids : &asks;
     list->insertOrder(order);
     listener.onOrder(*order);
     matchOrders(order->side);
 }
 
-void OrderBook::matchOrders(Side aggressorSide) {
+void OrderBook::matchOrders(Order::Side aggressorSide) {
     while (!bids.empty() && !asks.empty()) {
         auto bid = bids.front();
         auto ask = asks.front();
@@ -23,8 +23,8 @@ void OrderBook::matchOrders(Side aggressorSide) {
             int qty = MIN(bid->remaining, ask->remaining);
             F price = MIN(bid->_price, ask->_price);
 
-            Order* aggressor = aggressorSide == BUY ? bid : ask;
-            Order* opposite = aggressorSide == BUY ? ask : bid;
+            Order* aggressor = aggressorSide == Order::BUY ? bid : ask;
+            Order* opposite = aggressorSide == Order::BUY ? ask : bid;
 
             bid->fill(qty);
             ask->fill(qty);
@@ -46,7 +46,7 @@ void OrderBook::matchOrders(Side aggressorSide) {
     }
     // cancel remaining market order
     // TODO support convert to limit order
-    auto orders = aggressorSide == BUY ? &bids : &asks;
+    auto orders = aggressorSide == Order::BUY ? &bids : &asks;
     if (!orders->empty()) {
         auto order = orders->front();
         if (order->isMarket()) {
@@ -82,7 +82,7 @@ void OrderBook::quote(const QuoteOrders& quotes, F bidPrice, int bidQuantity, F 
         bid->remaining = bidQuantity;
         bid->filled = 0;
         bids.insertOrder(bid);
-        matchOrders(Side::BUY);
+        matchOrders(Order::BUY);
     }
     if (askQuantity != 0) {
         ask->_price = askPrice;
@@ -90,14 +90,14 @@ void OrderBook::quote(const QuoteOrders& quotes, F bidPrice, int bidQuantity, F 
         ask->remaining = askQuantity;
         ask->filled = 0;
         asks.insertOrder(ask);
-        matchOrders(Side::SELL);
+        matchOrders(Order::SELL);
     }
 }
 
 int OrderBook::cancelOrder(Order* order) {
     if (order->remaining > 0) {
         order->cancel();
-        auto orders = order->side == BUY ? &bids : &asks;
+        auto orders = order->side == Order::BUY ? &bids : &asks;
         orders->removeOrder(order);
         listener.onOrder(*order);
         return 0;
