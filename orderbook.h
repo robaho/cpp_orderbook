@@ -18,6 +18,7 @@ public:
     const int quantity;
     const Order& aggressor;
     const Order& opposite;
+    const long execId = epoch().count();
 };
 
 typedef void (*TradeReceiver)(Trade);

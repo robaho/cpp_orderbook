@@ -50,10 +50,16 @@ private:
 
     F _price;
     int _quantity;
+    int _cumQty=0;
+    F _avgPrice=0;
 
-    bool isQuote = false;
+    bool _isQuote = false;
     
-    void fill(int quantity) { remaining -= quantity; filled += quantity; }
+    void fill(int quantity,F price) { 
+        remaining -= quantity; filled += quantity;  
+        _avgPrice = (_avgPrice*_cumQty + price*quantity) / (_cumQty + quantity);
+        _cumQty += quantity; 
+    }
     void cancel() { remaining = 0; }
     bool isMarket() { return _price == DBL_MAX || _price == -DBL_MAX; } // could add "type" property, but not necessary for only limit and market orders
 protected:
@@ -68,8 +74,12 @@ public:
     const long exchangeId;
     const Side side;
 
-    bool isOnList() {
+    bool isOnList() const {
         return node.order!=nullptr;
+    }
+
+    bool isQuote() const{
+        return _isQuote;
     }
 
     F price() const { return _price; }
@@ -80,6 +90,12 @@ public:
     }
     int filledQuantity() const {
         return filled;
+    }
+    int cumulativeQuantity() const {
+        return _cumQty;
+    }
+    F averagePrice() const {
+        return _avgPrice;
     }
     bool isCancelled() const {
         return remaining==0 && filled!=_quantity;

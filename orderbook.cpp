@@ -26,8 +26,8 @@ void OrderBook::matchOrders(Order::Side aggressorSide) {
             Order* aggressor = aggressorSide == Order::BUY ? bid : ask;
             Order* opposite = aggressorSide == Order::BUY ? ask : bid;
 
-            bid->fill(qty);
-            ask->fill(qty);
+            bid->fill(qty,price);
+            ask->fill(qty,price);
 
             const Trade trade(price, qty, *aggressor, *opposite);
 
