@@ -26,4 +26,15 @@ public:
         }
         return nullptr;
     }
+    std::vector<const Order*> all() {
+        std::vector<const Order*> orders;
+        for(int i=0;i<TABLE_SIZE;i++) {
+            Order *order = table[i].load();
+            while(order!=nullptr) {
+                orders.push_back(order);
+                order = order->next;
+            }
+        }
+        return orders;
+    }
 };

@@ -47,6 +47,9 @@ public:
     std::vector<const std::string> instruments() {
         return books.instruments();
     }
+    std::vector<const Order*> orders() {
+        return allOrders.all();
+    }
 private:
     BookMap books;
     OrderMap allOrders;

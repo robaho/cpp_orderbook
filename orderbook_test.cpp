@@ -144,7 +144,9 @@ BOOST_AUTO_TEST_CASE( quoting ) {
     std::string sessionId("session");
     std::string quoteId("myquote");
 
-    ob.quote(sessionId,100,10,101,20,quoteId);
+    auto quotes = QuoteOrders{new TestOrder(1,100,10,BUY),new TestOrder(2,101,20,SELL)};
+
+    ob.quote(quotes,100,10,101,20);
 
     auto levels = ob.book();
 
@@ -156,7 +158,7 @@ BOOST_AUTO_TEST_CASE( quoting ) {
     BOOST_TEST(levels.asks[0].price==101);
     BOOST_TEST(levels.asks[0].quantity==20);
 
-    ob.quote(sessionId,100,20,101,30,quoteId);
+    ob.quote(quotes,100,20,101,30);
 
     levels = ob.book();
 
@@ -168,7 +170,7 @@ BOOST_AUTO_TEST_CASE( quoting ) {
     BOOST_TEST(levels.asks[0].price==101);
     BOOST_TEST(levels.asks[0].quantity==30);
 
-    ob.quote(sessionId,100,0,101,30,quoteId);
+    ob.quote(quotes,100,0,101,30);
 
     levels = ob.book();
 
@@ -178,7 +180,7 @@ BOOST_AUTO_TEST_CASE( quoting ) {
     BOOST_TEST(levels.asks[0].price==101);
     BOOST_TEST(levels.asks[0].quantity==30);
 
-    ob.quote(sessionId,100,0,101,0,quoteId);
+    ob.quote(quotes,100,0,101,0);
     levels = ob.book();
     BOOST_TEST(levels.bids.size()==0);    
     BOOST_TEST(levels.asks.size()==0);    

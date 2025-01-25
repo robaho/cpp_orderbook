@@ -102,7 +102,8 @@ public:
     void insertOrder(Order* order);
     int cancelOrder(Order *order);
 
-    void quote(const std::string& sessionId,F bidPrice,int bidQuantity,F askPrice,int askQuantity,const std::string& quoteId);
+    QuoteOrders getQuotes(const std::string& sessionId, const std::string& quoteId, std::function<QuoteOrders()> createOrders);
+    void quote(const QuoteOrders& quotes,F bidPrice,int bidQuantity,F askPrice,int askQuantity);
 
     const Book book();
     const Order getOrder(Order *order);

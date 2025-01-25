@@ -62,7 +62,14 @@ long Exchange::sell(const std::string& sessionId,const std::string_view& instrum
 void Exchange::quote(const std::string& sessionId,const std::string_view& instrument,F bidPrice,int bidQuantity,F askPrice,int askQuantity,const std::string_view& quoteId) {
     OrderBook *book = books.getOrCreate(instrument,*this);
     auto bookGuard = book->lock();
-    book->quote(sessionId,bidPrice,bidQuantity,askPrice,askQuantity,std::string(quoteId));
+    auto orders = book->getQuotes(sessionId,std::string(quoteId),[&]() -> QuoteOrders{
+        auto bid = new (book->allocateOrder()) Order(sessionId,std::string(quoteId),book->instrument,bidPrice,bidQuantity,BUY,nextID());
+        auto ask = new (book->allocateOrder()) Order(sessionId,std::string(quoteId),book->instrument,askPrice,askQuantity,SELL,nextID());
+        allOrders.add(bid);
+        allOrders.add(ask);
+        return {bid,ask};
+    });
+    book->quote(orders,bidPrice,bidQuantity,askPrice,askQuantity);
 }
 
 long Exchange::nextID() {

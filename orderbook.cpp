@@ -1,6 +1,7 @@
 #include "orderbook.h"
 
 #include <sys/param.h>
+#include <functional>
 
 #include "order.h"
 
@@ -56,47 +57,40 @@ void OrderBook::matchOrders(Side aggressorSide) {
     }
 }
 
-void OrderBook::quote(const std::string& sessionId, F bidPrice, int bidQuantity, F askPrice, int askQuantity, const std::string& quoteId) {
+QuoteOrders OrderBook::getQuotes(const std::string& sessionId, const std::string& quoteId, std::function<QuoteOrders()> createOrders) {
     auto key = SessionQuoteId(sessionId, quoteId);
     auto itr = quotes.find(key);
     if (itr == quotes.end()) {
-        QuoteOrders q;
-        if (bidQuantity != 0) {
-            q.bid = new (allocateOrder()) Order(sessionId, quoteId, instrument, bidPrice, bidQuantity, BUY, 0);
-            q.bid->isQuote = true;
-            bids.insertOrder(q.bid);
-        }
-        if (askQuantity != 0) {
-            q.ask = new (allocateOrder()) Order(sessionId, quoteId, instrument, askPrice, askQuantity, SELL, 0);
-            q.bid->isQuote = true;
-            asks.insertOrder(q.ask);
-        }
-        quotes[key] = q;
+        return quotes[key] = createOrders();
     } else {
-        auto bid = itr->second.bid;
-        auto ask = itr->second.ask;
-        if(bid->isOnList()) {
-            bids.removeOrder(bid);
-        }
-        if(ask->isOnList()) {
-            asks.removeOrder(ask);
-        }
-        if (bidQuantity != 0) {
-            bid->_price = bidPrice;
-            bid->_quantity = bidQuantity;
-            bid->remaining = bidQuantity;
-            bid->filled = 0;
-            bids.insertOrder(bid);
-            matchOrders(Side::BUY);
-        }
-        if (askQuantity != 0) {
-            ask->_price = askPrice;
-            ask->_quantity = askQuantity;
-            ask->remaining = askQuantity;
-            ask->filled = 0;
-            asks.insertOrder(ask);
-            matchOrders(Side::SELL);
-        }
+        return itr->second;
+    }
+}
+
+void OrderBook::quote(const QuoteOrders& quotes, F bidPrice, int bidQuantity, F askPrice, int askQuantity) {
+    auto bid = quotes.bid;
+    auto ask = quotes.ask;
+    if(bid->isOnList()) {
+        bids.removeOrder(bid);
+    }
+    if(ask->isOnList()) {
+        asks.removeOrder(ask);
+    }
+    if (bidQuantity != 0) {
+        bid->_price = bidPrice;
+        bid->_quantity = bidQuantity;
+        bid->remaining = bidQuantity;
+        bid->filled = 0;
+        bids.insertOrder(bid);
+        matchOrders(Side::BUY);
+    }
+    if (askQuantity != 0) {
+        ask->_price = askPrice;
+        ask->_quantity = askQuantity;
+        ask->remaining = askQuantity;
+        ask->filled = 0;
+        asks.insertOrder(ask);
+        matchOrders(Side::SELL);
     }
 }
 

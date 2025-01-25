@@ -43,7 +43,8 @@ private:
 
     int remaining;
     int filled=0;
-    const std::string& _sessionId;
+    // sessionId cannot be a reference since the Order will out-live the Session
+    const std::string _sessionId;
     std::string _orderId;
 
     F _price;
@@ -59,8 +60,8 @@ protected:
     Order(const std::string& sessionId,const std::string &orderId,const std::string &instrument,F price,int quantity,Side side,long exchangeId) : timeSubmitted(epoch()), remaining(quantity),
      _sessionId(sessionId), _orderId(orderId), _price(price), _quantity(quantity), instrument(instrument), exchangeId(exchangeId), side(side) {}
 public:
-    const std::string& sessionId() { return _sessionId; }
-    const std::string& orderId() { return _orderId; }
+    const std::string& sessionId() const { return _sessionId; }
+    const std::string& orderId() const { return _orderId; }
     const std::string &instrument; 
     const long exchangeId;
     const Side side;
@@ -78,16 +79,16 @@ public:
     int filledQuantity() const {
         return filled;
     }
-    bool isCancelled() {
+    bool isCancelled() const {
         return remaining==0 && filled!=_quantity;
     }
-    bool isFilled() {
+    bool isFilled() const {
         return remaining==0 && filled==_quantity;
     }
-    bool isPartiallyFilled() {
+    bool isPartiallyFilled() const {
         return remaining==0 && filled>0;
     }
-    bool isActive() {
+    bool isActive() const {
         return remaining>0;
     }
 };
