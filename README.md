@@ -137,4 +137,4 @@ Anyway, I hope this is helpful to others when faced with a similar problem.
 
 ## Related projects
 
-See [cpp_fix_codec](https://github.com/robaho/cpp_fix_codec) for an utlra-high-performance FIX protocol parser.
+See [cpp-trader](https://github.com/robaho/cpp-trader) for an utlra-high-performance FIX based financial exchange. 
