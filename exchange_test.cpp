@@ -130,12 +130,26 @@ BOOST_AUTO_TEST_CASE( cancel ) {
     TestExchange ob(listener);
 
     auto o1_id = ob.buy(1.0,20,"1");
-    BOOST_TEST(ob.cancel(o1_id)==0);
-    BOOST_TEST(ob.cancel(o1_id)==-1);
+    BOOST_TEST(ob.cancel(o1_id,"dummy")==0);
+    BOOST_TEST(ob.cancel(o1_id,"dummy")==-1);
 
     // should be an event for the order and the cancel
     BOOST_TEST( listener.orders.size()==2);
     BOOST_TEST( ob.bidCount() == 0);
+}
+
+BOOST_AUTO_TEST_CASE( cancel_invalid ) {
+
+    TestListener listener;
+    TestExchange ob(listener);
+
+    auto o1_id = ob.buy(1.0,20,"1");
+    try {
+        ob.cancel(o1_id+1,"dummy");
+        BOOST_TEST(false);
+    } catch(std::runtime_error& e) {
+        BOOST_TEST(true);
+    }
 }
 
 BOOST_AUTO_TEST_CASE( market_buy ) {

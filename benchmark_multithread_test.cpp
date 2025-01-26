@@ -99,7 +99,7 @@ void cancelOrders() {
 
     auto fn = [&](const int tid) {
         for(int i=0;i<N_ORDERS;i++) {
-            exchange.cancel(oids[tid][i]);
+            exchange.cancel(oids[tid][i],session);
         }
     };
 

@@ -33,7 +33,7 @@ public:
     }
     void quote(const std::string& sessionId,const std::string_view& instrument,F bidPrice,int bidQuantity,F askPrice,int askQuantity,const std::string_view& quoteId);
     // returns 0 if cancelled, else error
-    int cancel(long exchangeId);
+    int cancel(long exchangeId,const std::string& sessionId);
     const Book book(const std::string& instrument);
     const Order getOrder(long exchangeId);
     void onOrder(const Order& order) override {

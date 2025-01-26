@@ -29,10 +29,11 @@ const Book Exchange::book(const std::string& instrument) {
     return book->book();
 }
 
-int Exchange::cancel(long exchangeId) {
+int Exchange::cancel(long exchangeId,const std::string& sessionId) {
     OrderBook* book;
     Order* order = allOrders.get(exchangeId);
     if(!order) throw std::runtime_error("invalid exchange order id "+std::to_string(exchangeId));
+    if(order->sessionId()!=sessionId) throw std::runtime_error("invalid session id "+sessionId);
     book = books.get(order->instrument);
     if(!book) throw std::runtime_error("missing book for order id"+std::to_string(exchangeId));
 

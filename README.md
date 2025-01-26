@@ -14,6 +14,10 @@ You need the [Boost Unit Testing Framework](https://www.boost.org/doc/libs/1_87_
 
 It builds using `make` and by default with CLang. There is `Makefile.gcc` to use GCC instead.
 
+## Testing
+
+use `make run_tests` to run all of the test cases.
+
 ## Usage
 
 See `exchange.h` for the public api. `orderbook.h` is the internal single threaded order book management.
