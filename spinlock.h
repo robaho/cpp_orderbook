@@ -1,11 +1,13 @@
 #pragma once
 
 #include <atomic>
-#include <chrono>
+
+#if defined(__aarch64__)
+#else
 #include <emmintrin.h>
-#include <thread>
 #include <immintrin.h>
-#include <iostream>
+#include <xmmintrin.h>
+#endif
 
 class SpinLock {
 private:
@@ -13,7 +15,13 @@ private:
 public:
     void lock() {
         while(true) {
-            while(mutex.test(std::memory_order_acquire)) _mm_pause();
+            while(mutex.test(std::memory_order_acquire)) {
+                #if defined(__aarch64__)
+                                asm volatile("yield" ::: "memory");
+                #else
+                                _mm_pause();
+                #endif
+            }
             if(!mutex.test_and_set(std::memory_order_acquire)) {
                 return;
             } else {
