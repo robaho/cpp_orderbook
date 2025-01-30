@@ -101,7 +101,7 @@ cancel orders 10 levels, usec per order 0.123793, orders per sec 8078001
 Running OSX on a 4 GHz Quad-Core Intel Core i7 with a single instrument.
 
 ```
-Insert orders at 5.5M - 105M per second
+Insert orders at 5.5M - 10.5M per second
 Insert orders with 30% trade match, 4M - 8M per second
 Cancel orders at 4M - 8.5M per second
 ```
