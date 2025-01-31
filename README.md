@@ -140,7 +140,3 @@ In my opinion, it's a fairly common blunder in hiring - where the interviewer on
 Anyway, I hope this is helpful to others when faced with a similar problem.
 
 </details>
-
-## Related projects
-
-See [cpp-trader](https://github.com/robaho/cpp-trader) for an utlra-high-performance FIX based financial exchange. 
