@@ -1,6 +1,6 @@
 ## Summary
 
-This is a C++ implementation of a financial exchange order book. It is inspired by the Go version in [go-trader](https://github.com/robaho/go-trader).
+This is an ultra high pergormance C++ implementation of a financial exchange order book capable of processing more than 20M orders per second on commodity gardware. It is inspired by the Go version in [go-trader](https://github.com/robaho/go-trader).
 
 It uses [cpp_fixed](https://github.com/robaho/cpp_fixed) to perform fixed decimal point integer math.
 
