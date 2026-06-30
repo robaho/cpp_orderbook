@@ -1,5 +1,5 @@
 CXX = clang++
-INCLUDES = -I ../cpp_fixed
+INCLUDES = -I ../cpp_fixed -I /opt/homebrew/include -I /usr/local/include
 # CXXFLAGS = -std=c++20 -Wall -O0 -fsanitize=address -fno-omit-frame-pointer -pedantic-errors -g ${INCLUDES}
 # CXXFLAGS = -std=c++20 -Wall -pedantic-errors -g ${INCLUDES}
 CXXFLAGS = -std=c++20 -O3 -Wall -pedantic-errors -g -fno-permissive ${INCLUDES}
@@ -34,7 +34,7 @@ ${LIB}: ${OBJS}
 	ar r ${LIB} ${OBJS}
 
 bin/%_test: bin/%_test.o ${LIB}
-	${CXX} ${LDFLAGS} ${CXXFLAGS} $@.o ${LIB} -o $@ 
+	${CXX} ${LDFLAGS} ${CXXFLAGS} $@.o ${LIB} -o $@
 
 bin/%.o: %.cpp ${HEADERS}
 	@ mkdir -p bin
@@ -42,5 +42,3 @@ bin/%.o: %.cpp ${HEADERS}
 
 clean:
 	rm -rf bin *~.
-
-
