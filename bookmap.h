@@ -51,8 +51,8 @@ public:
             if(index==start) return nullptr;
         }
     }
-    std::vector<const std::string> instruments() {
-        std::vector<const std::string> result;
+    std::vector<std::string> instruments() {
+        std::vector<std::string> result;
         for(int i=0;i<MAX_INSTRUMENTS;i++) {
             auto book = table[i].load();
             if(book!=nullptr) result.push_back(book->instrument);

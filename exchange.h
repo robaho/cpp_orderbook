@@ -45,7 +45,7 @@ public:
     Guard lock() {
         return Guard(mu);
     }
-    std::vector<const std::string> instruments() {
+    std::vector<std::string> instruments() {
         return books.instruments();
     }
     std::vector<const Order*> orders() {
