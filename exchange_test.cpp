@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( insertOrder_buy_same_price ) {
     BOOST_TEST( ob.bidIndex(o1_id) == 2);
 }
 
-BOOST_AUTO_TEST_CASE( fill ) {
+BOOST_AUTO_TEST_CASE( fill_sell_aggressor ) {
 
     TestListener listener;
 
@@ -98,7 +98,27 @@ BOOST_AUTO_TEST_CASE( fill ) {
     BOOST_TEST( listener.trades.size()==1);
     BOOST_TEST( listener.trades[0].aggressor.exchangeId == o2_id);
     BOOST_TEST( listener.trades[0].opposite.exchangeId == o1_id);
+    BOOST_TEST( listener.trades[0].price == 1.0);
 }
+
+BOOST_AUTO_TEST_CASE( fill_buy_aggressor ) {
+
+    TestListener listener;
+
+    TestExchange ob(listener);
+
+    auto o1_id = ob.sell(1.0,10,"1");
+
+    BOOST_TEST( listener.trades.size()==0);
+
+    auto o2_id = ob.buy(1.10,10,"2");
+
+    BOOST_TEST( listener.trades.size()==1);
+    BOOST_TEST( listener.trades[0].aggressor.exchangeId == o2_id);
+    BOOST_TEST( listener.trades[0].opposite.exchangeId == o1_id);
+    BOOST_TEST( listener.trades[0].price == 1.0);
+}
+
 
 BOOST_AUTO_TEST_CASE( partial_fill ) {
 
@@ -230,10 +250,3 @@ BOOST_AUTO_TEST_CASE( order_immutability ) {
     BOOST_TEST( order.remainingQuantity()==30);
     BOOST_TEST( latest.remainingQuantity()==20);
 }
-
-
-
-
-
-
-

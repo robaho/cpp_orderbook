@@ -21,10 +21,11 @@ void OrderBook::matchOrders(Order::Side aggressorSide) {
 
         if (bid->_price >= ask->_price) {
             int qty = MIN(bid->remaining, ask->remaining);
-            F price = MIN(bid->_price, ask->_price);
 
             Order* aggressor = aggressorSide == Order::BUY ? bid : ask;
             Order* opposite = aggressorSide == Order::BUY ? ask : bid;
+
+            F price = opposite->_price;
 
             bid->fill(qty,price);
             ask->fill(qty,price);
